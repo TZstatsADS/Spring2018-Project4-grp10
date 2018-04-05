@@ -7,7 +7,8 @@ user_item_transfer_1<-function(data){
   Vroot<-unique(data[data$V1=="V",2])
   user_item_1<-matrix(NA,nrow =length(user_id) ,ncol=length(Vroot))
   user_id_index<-which(data$V1=="C")
-  for(i in 1:(length(user_id)-1)){
+  user_id_index<-c(user_id_index,nrow(data)+1)
+  for(i in 1:(length(user_id))){
     Vroot_user_i<-data[(user_id_index[i]+1):(user_id_index[i+1]-1),"V2"]
     user_item_1[i,which(Vroot%in%Vroot_user_i)]<-1
   }
