@@ -25,22 +25,10 @@ save(train_data1,file="./output/train_data1.RData")
 save(test_data1,file="./output/test_data1.RData")
 
 
-
-user_item_transfer_2<-function(data){
-  user_id<-unique(data$User)
-  movie<-unique(data$Movie)
-  default<-0
-  user_item_2<-matrix(default,nrow =length(user_id) ,ncol=length(movie))
-  rownames(user_item_2)<-user_id
-  colnames(user_item_2)<-movie<-unique(data$Movie)
-  for(i in 1:length(user_id)){
-    movie_user_i<-data[data$User==user_id[i],"Movie"]
-    score_user_i<-data[data$User==user_id[i],"Score"]
-    user_item_2[i,which(movie%in%movie_user_i)]<-score_user_i
-  }
-  return(user_item_2)
-}
-train_data2<-user_item_transfer_2(train_data_2)
-test_data2<-user_item_transfer_2(test_data_2)
+######data2
+train_mv <- read.csv("data_train.csv")
+test_mv <- read.csv("data_test.csv")
+train_data2 <- acast(train_mv,User~Movie,value.var="Score")
+test_data2 <- acast(test_mv,User~Movie,value.var="Score")
 save(train_data2,file="./output/train_data2.RData")
 save(test_data2,file="./output/test_data2.RData")
