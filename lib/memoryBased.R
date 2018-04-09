@@ -31,29 +31,50 @@ transfer_2<-function(data){
   return(user_item_2)
 }
 
+###other method
+train_data2 <- acast(train_mv,User~Movie,value.var="Score")
+test_data2 <- acast(test_mv,User~Movie,value.var="Score")
+
 
 ##### similarity weighting #####
-simweight<-function(data,cor_method){
-  weight_mat <- matrix(NA,nrow=nrow(data),ncol=nrow(data))
-  rownames(weight_mat)<-rownames(data)
-  colnames(weight_mat)<-rownames(data)
-  if(sum(is.na(data))==0){
-    weight_mat<-cor(t(data),t(data),method=cor_method)
-  }
-  else{
-    for(i in 1:nrow(data)){
-      weight_mat[i,]<-apply(data,1,function(x){
-        both_voted_index<-(!is.na(x))&(!is.na(data[i,]))#items that user a and i both vote
-        if(sum(both_voted_index)==0){#no common item
-          return(0)#cor is zero
-        }
-        else{
-          return(cor(data[i,index],x[index],method=cor_method))
-        }
-      })
-    }
-  }
-  return(weight_mat)
+# simweight<-function(data,cor_method){
+#   weight_mat <- matrix(NA,nrow=nrow(data),ncol=nrow(data))
+#   rownames(weight_mat)<-rownames(data)
+#   colnames(weight_mat)<-rownames(data)
+#   if(sum(is.na(data))==0){
+#     weight_mat<-cor(t(data),t(data),method=cor_method)
+#   }
+#   else{
+#     for(i in 1:nrow(data)){
+#       weight_mat[i,]<-apply(data,1,function(x){
+#         both_voted_index<-(!is.na(x))&(!is.na(data[i,]))#items that user a and i both vote
+#         if(sum(both_voted_index)==0){#no common item
+#           return(0)#cor is zero
+#         }
+#         else{
+#           return(cor(data[i,index],x[index],method=cor_method))
+#         }
+#       })
+#     }
+#   }
+#   return(weight_mat)
+# }
+
+#####simple code
+cor(t(data),use = "pairwise.complete.obs", method="pearson")
+cor(t(data),use = "pairwise.complete.obs",method="spearman")
+
+#####variance weighting
+var_weight <- function(data,method){ 
+  data <- train_data2[,-1]  
+  data <- matrix(as.numeric(data),nrow=nrow(data))
+  variance <- apply(data,2,var,na.rm=T)
+  maxv <- max(variance,na.rm=T)
+  minv <- min(variance,na.rm=T)
+  v <- (variance-minv)/maxv
+  datav <- t(data)*v^0.5 
+  var_cor <- cor(datav,use="pairwise.complete.obs",method=method)
+  return(var_cor)
 }
 
 ##### neighbor selection by weight threshold #####
@@ -109,6 +130,32 @@ pred_1<-function(train,test,sim_weight,top.neighbors){
   }
   return(pred.mat)
 }
+
+##For movie data
+pred_2 <- function(train_data,test_data,cor){
+  test_data <- matrix(as.numeric(test_data),nrow=nrow(test_data))
+  n <- nrow(test_data)
+  m <- ncol(test_data)
+  test_user <- rownames(test_data)
+  rownames(test_data) <- c(1:n)
+  test_index <- apply(!is.na(test_data),1,which)
+  user_mean <- rowMeans(test_data,na.rm=T)
+  rownames(cor) <- c(1:nrow(train_data))
+  colnames(cor) <- c(1:nrow(train_data))
+  data <- matrix(as.numeric(train_data),nrow=nrow(train_data))
+  scale_data <- scale(data,center=T,scale=T)
+  rownames(scale_data) <- c(1:nrow(train_data))
+  variance <- apply(data,2,var,na.rm=T)
+  user_var <- apply(data,1,var,na.rm=T)
+  pred.matrix <- matrix(NA,nrow=n,ncol=m)
+  for (a in 1:n){
+    for (i in test_index[[a]]){
+      pred.matrix[a,i] <- user_mean[a]+(sum(scale_data[,i]*cor[a,],na.rm=T)*sqrt(user_var[a])/sum(cor[a,]*(!is.na(scale_data[,i])),na.rm=T))
+    }
+  }
+  return(prediction= pred.matrix)
+}
+
 
 ##### Evaluation #####
 ## For MS data
