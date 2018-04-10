@@ -19,7 +19,8 @@ if(length(packages.needed)>0){
                    repos='http://cran.us.r-project.org')
 }
 # Load libraries  
-library("Hmisc","reshape2")
+library("reshape2")
+library("Hmisc")
 
 # Set working directory to the doc folder 
 #setwd("~/GitHub/Spring2018-Project4-group-10/doc")
@@ -39,7 +40,6 @@ rownames(df.train2) <- df.train2[,1]
 rownames(df.test2) <- df.test2[,1]
 df.train2 <- df.train2[,-1]
 df.test2 <- df.test2[,-1]
-#dim(df.train2) 
 #df.train2[1:6,1:9]
 ```
 ## Step 2: Implement Algorithm
@@ -72,12 +72,15 @@ if(run.CM.cv){
 CM.error.cv <- colMeans(CM.error.validation)
 CM.error.cv.sd <- apply(CM.error.validation, 2, sd)/sqrt(nrow(CM.error.validation))
 CM.c.min <- which.min(CM.error.cv)
+CM.c.max <- which.max(CM.error.cv)
 CM.error.cv.lbound <- CM.error.cv[CM.c.min] - CM.error.cv.sd[CM.c.min]
 CM.error.cv.ubound <- CM.error.cv[CM.c.min] + CM.error.cv.sd[CM.c.min]
-plot(CM.C.list, CM.error.cv, main = "5-Fold Cross-Validation",
+CM.error.cv.lylim <- min(CM.error.cv-CM.error.cv.sd)
+CM.error.cv.uylim <- max(CM.error.cv+CM.error.cv.sd)
+plot(CM.C.list, CM.error.cv, main = "Cluster Models 5-Fold Cross-Validation",
      xlab = "Number of Classes", ylab = "Prediction Error", 
-     ylim = c(0.98,1.05), xaxt = "n", 
-     type = "l", col="steelblue2")
+     ylim = c(CM.error.cv.lylim, CM.error.cv.uylim), 
+     xaxt = "n", type = "l", col="steelblue2")
 axis(1, at = CM.C.list, labels = CM.C.list)
 errbar(CM.C.list, CM.error.cv, 
        CM.error.cv+CM.error.cv.sd, CM.error.cv-CM.error.cv.sd, 
@@ -88,12 +91,12 @@ abline(h=CM.error.cv.ubound, col=gray(0.4), lty=2)
 dev.copy2pdf(file ="../figs/CM.CrossValidation.pdf")
 CM.C.best <- CM.C.list[(CM.error.cv>CM.error.cv.lbound) 
                        & (CM.error.cv<CM.error.cv.ubound)][1]
-print(paste0("The Best number of classes is ", CM.C.best))  
+print(paste0("The best number of classes is ", CM.C.best, "."))  
 ```
-#### Learn Parameters Using the C Chosen 
+#### Learn Parameters with the C Chosen 
 ```{r}
 if(run.CM.pars){
-  CM.pars <- cluster.em(df.train2, C.best, 0.05)
+  CM.pars <- cluster.em(df.train2, CM.C.best, 0.05)
   save(CM.pars, file = paste0("../output/CM.pars.RData"))
 }else{
   load("../output/CM.pars.RData")

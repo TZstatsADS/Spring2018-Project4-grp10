@@ -11,31 +11,30 @@
 
 ####################################################################################################
 ########## BEGIN cluster.cv ##########
-cluster.cv <- function(df, C.list, n.fold=5, tau=0.5, seed=123){
+cluster.cv <- function(df, C.list, fold.n=5, tau=0.5, seed=123){
   # Perform K-Fold Cross-Validation
   # Input-- df: dataframe (User x Movie)
   #         C.list: a list of C (number of classes)
-  #         n.fold: number of folds
+  #         fold.n: number of folds
   #         tau: convergence threshold 
   #         seed: seed of ramdom sampling
   # Output-- validation errors
-  
-  N <- nrow(df) # number of users
-  M <- ncol(df) # number of movies
-  fold.user <- floor(N/n.fold)
-  fold.movie <- floor(M/n.fold)
   set.seed(seed)
-  sample.user <- sample(rep(1:n.fold,c(rep(fold.user,n.fold-1),N-(n.fold-1)*fold.user)))
-  sample.movie <- sample(rep(1:n.fold,c(rep(fold.movie,n.fold-1),M-(n.fold-1)*fold.movie)))
-  error.validation <- matrix(NA, n.fold, length(C.list))
+  obs.n <- sum(!is.na(df))
+  fold.size <- floor(obs.n/fold.n)
+  fold.i <- sample(rep(seq(fold.n), 
+                       c(rep(fold.size,fold.n-1),obs.n-fold.size*(fold.n-1))))
+  fold.I <- df
+  fold.I[!is.na(fold.I)] <- fold.i
+  error.validation <- matrix(NA, fold.n, length(C.list))
   
   for (c in seq(length(C.list))) {
-    for (i in seq(n.fold)) {
+    for (i in seq(fold.n)) {
       print(paste0("C = ", C.list[c], " (fold ", i, "): "))
-      df.validation <- data.frame(matrix(NA,N,M))
-      df.validation[sample.user==i,sample.movie==i] <- df[sample.user==i,sample.movie==i]
       df.training <- df
-      df.training[sample.user==i,sample.movie==i] <- NA
+      df.training[fold.I==i] <- NA
+      df.validation <- df
+      df.validation[fold.I!=i] <- NA
       pars <- cluster.em(df.training, C.list[c], tau)
       df.est <- cluster.score(df.training, pars)
       error.validation[i,c] <- sum(abs(df.est-df.validation),na.rm = T)/sum(!is.na(df.est-df.validation))
