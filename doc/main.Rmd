@@ -5,7 +5,7 @@ date: "4/18/2018"
 output: pdf_document
 ---
 
-## Step 0: Load the packages, specify directories
+## Step 0: Load Packages & Specify Directories
 ```{r}
 # Packages that will be used
 packages.used <- c("reshape2", "Hmisc")
@@ -25,7 +25,7 @@ library("Hmisc","reshape2")
 #setwd("~/GitHub/Spring2018-Project4-group-10/doc")
 ```
 
-## Step 1: Load and process the data  
+## Step 1: Load and Process Data
 ```{r}
 #train1 <- read.csv("../data/MS_sample/data_train.csv", header=TRUE)
 #test1 <- read.csv("../data/MS_sample/data_test.csv", header=TRUE)
@@ -43,7 +43,7 @@ df.test2 <- df.test2[,-1]
 #df.train2[1:6,1:9]
 ```
 ## Step 2: Implement Algorithm
-### Model-based Algorithm - Cluster Models
+### Model-Based Algorithm (Cluster Models)
 #### Stage  
 ```{r}
 run.CM.cv <- FALSE
@@ -112,4 +112,4 @@ if(run.CM.est){
 CM.error.test <- sum(abs(CM.est-df.test2),na.rm = T)/ sum(!is.na(CM.est-df.test2))
 print(paste0("The test error of the cluster model is ", round(CM.error.test,4),"."))
 ```
-### Memory-based Algorithm  
+### Memory-Based Algorithm  
