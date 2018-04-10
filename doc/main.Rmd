@@ -1,6 +1,6 @@
 ---
 title: "Project 4 - Collaborative Filtering"
-author: "Team 10"
+author: "Group 10"
 date: "4/18/2018"
 output: pdf_document
 ---
