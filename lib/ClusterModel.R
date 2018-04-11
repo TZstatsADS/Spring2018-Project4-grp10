@@ -82,7 +82,7 @@ cluster.em <- function(df, C, tau, seed=123) {
     pars <- list(mu=mu, gamma=gamma)
     # Step 2: Expectation
     # compute repsonsibilities for each user i
-    Pi <- cluster.pi(df, pars)
+    Pi <- cluster.pi(df, pars) # User x Class
     
     # Step 3: Maximization
     # update parameters 
@@ -92,7 +92,7 @@ cluster.em <- function(df, C, tau, seed=123) {
     gamma.new <-  array(NA, c(C,M,K))
     for (k in seq(K)){
       I[,,k] <- ifelse((df!=k|is.na(df)),0,1)
-      gamma.new[,,k] <- t(Pi)%*%I[,,k]/t(Pi)%*%I.all
+      gamma.new[,,k] <- (t(Pi)%*%I[,,k])/(t(Pi)%*%I.all)
     }
     gamma.new[is.na(gamma.new)] <- 1/K
     gamma.new[gamma.new==0] <- min(gamma.new[gamma.new!=0])
@@ -167,8 +167,7 @@ cluster.pi <- function(df, pars){
     I[,,k] <- ifelse((df!=k|is.na(df)),0,1)
     phi <- phi + I[,,k]%*%t(log(gamma[,,k]))
   }
-  phi <- exp(phi)
-  phi[phi==0] <- exp(-745.13) #exp(-745.13)==0 False; exp(-745.14)==0 True
+  phi <- exp(phi) #phi <- exp(mpfr(phi))  #exp(-745.13)==0 False; exp(-745.14)==0 True
   w <- phi*rep(mu, each=N) # User x Class
   w[w==0] <- min(w[w!=0])
   Pi <- w/rowSums(w) # User x Class
@@ -176,4 +175,3 @@ cluster.pi <- function(df, pars){
 }
 ########## END cluster.pi ##########
 ####################################################################################################
-
