@@ -51,8 +51,8 @@ transfer_2<-function(data){
   return(user_item_2)
 }
 ###other method
-train_data2 <- acast(train_mv,User~Movie,value.var="Score")
-test_data2 <- acast(test_mv,User~Movie,value.var="Score")
+#train_data2 <- acast(train_mv,User~Movie,value.var="Score")
+#test_data2 <- acast(test_mv,User~Movie,value.var="Score")
 
 
 
@@ -120,31 +120,25 @@ get_neighbors_index<-function(sim_weight,threshold=0.5){
 
 ##### simrank
 simrank <- function(train_data, iter=6, c=0.8){
-  
   n <- nrow(train_data)
   m <- ncol(train_data)
-  
   I_u <- apply(train_data,1,sum)
   I_w <- apply(t(train_data),1,sum)
   i_u <- train_data/I_u
   i_w <- t(train_data)/I_w
   #calculate the weighting
-  
   weight_user <- matrix(0,nrow=n,ncol=n)
   weight_net <- matrix(0,nrow=m,ncol=m)
   weight_useru <- cbind(weight_user,i_u)
   weight_netw <- cbind(i_w,weight_net)
   weight_all <- rbind(weight_useru,weight_netw)
   ####weighting function for nodes
-  
   R <- matrix(0,nrow=m+n,ncol=m+n)
-  
   for (i in 1:iter){
     Rold <- R
     R <- c*(weight_all%*%Rold%*%t(weight_all))
     diag(R) <- 1
   }
-  
   R_final <- R[1:n,1:n]
   rownames(R_final) <- rownames(train_data)
   colnames(R_final) <- rownames(train_data)
