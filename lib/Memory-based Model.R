@@ -14,8 +14,6 @@ transfer_1<-function(data){
   return(user_item_1)
 }
 
-train_data1<-transfer_1(train_data_1)
-
 
 transfer_1_test<-function(data,train){
   user_id<-data[data$V1=="C",2]
@@ -32,7 +30,6 @@ transfer_1_test<-function(data,train){
   return(user_item_1_test)
 }
 
-test_data1<-transfer_1_test(test_data_1,train_data1)
 
 
 ## For Movie data
@@ -114,8 +111,8 @@ get_neighbors_index<-function(sim_weight,threshold=0.5){
       user_id_cover <- c(user_id_cover,neighbors_by_threshold[[i]][which(!(neighbors_by_threshold[[i]] %in% user_id_cover))])
     }
   }
-  coverage<-length(user_id_cover)
-  return(list(top.neighbors=neighbors_by_threshold,coverage_num=coverage))
+  coverage_pre<-length(user_id_cover)/nrow(sim_weight)
+  return(list(top.neighbors=neighbors_by_threshold,coverage_pre=coverage_pre))
 }
 
 ##### simrank
