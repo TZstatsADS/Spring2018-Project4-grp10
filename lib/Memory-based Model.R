@@ -86,6 +86,37 @@ simweight<-function(data,cor_method){
   return(weight_mat)
 }
 
+######fill in NA
+rmna <- function(data,train_data){
+  n <- nrow(data)
+  loc <- which(is.na(data))
+  for (i in loc){
+    a <- (i%/%n + 1)
+    b <- i%%n
+    x <- which(!is.na(train_data[a,]))
+    y <- which(!is.na(train_data[b,]))
+    x__y <- intersect(x,y)
+    #print(x__y)
+    if (length(x__y)< 1){
+      data[a,b] <- 0
+    }
+    else{
+      x_y <- union(x,y)
+      datax <- train_data[c(a,b),x_y]
+      datax[1,is.na(datax[1,])] <- mean(datax[1,],na.rm=T)
+      datax[2,is.na(datax[2,])] <- mean(datax[2,],na.rm=T)
+      corr <- cor(t(datax),method ="pearson")
+      cor <- corr[1,2]
+      data[a,b] <- cor
+      #print(cor)
+      rm(a,b,datax)
+    }
+  }
+  return(data)
+}
+
+
+
 ##### variance weighting #####
 var_weight <- function(data,method){ 
   data <- train_data2[,-1]  
