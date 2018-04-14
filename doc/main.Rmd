@@ -122,6 +122,7 @@ transfer_1 <- FALSE
 transfer_1_test <- FALSE
 transfer_2 <- FALSE
 simweight <- FALSE
+rmna <-FALSE
 var_weight <- FALSE
 simrank <- FALSE
 pred_1 <- FALSE
@@ -133,6 +134,7 @@ source("../lib/Memory-based Model.R")
 ### transfer_1_test -- transfer MS testing data to dataframe with columns of all websites
 ### transfer_2 -- transfer Movie data
 ### simweight --  similarity weight
+### rmna -- 
 ### var_weight -- variance weight
 ### simrank -- simrank weight
 ### get_neighbors_index -- Neighbors selection by weight threshold
@@ -163,59 +165,93 @@ if(transfer_1 & transfer_1_test & transfer_2){
 #### get weight matrix and select neighbors by threshold
 ```{r}
 if(simweight & var_weight & simrank){
-  #weight_pearson_1<-simweight(df_train1,"pearson")
+  weight_pearson_1<-simweight(df_train1,"pearson")
   weight_spearman_1<-simweight(df_train1,"spearman")
-  weight_pearson_2<-simweight(df_train2,"pearson")
-  weight_spearman_2<-simweight(df_train2,"spearman")
-  #save(weight_pearson_1, file = paste0("../output/weight_pearson_1.RData"))
+  weight_pearson_2_temp<-simweight(df_train2,"pearson")
+  weight_pearson_2<-rmna(weight_pearson_2_temp,df_train2)
+  weight_spearman_2_temp<-simweight(df_train2,"spearman")
+  weight_spearman_2<-rmna(weight_spearman_2_temp,df_train2)
+  save(weight_pearson_1, file = paste0("../output/weight_pearson_1.RData"))
   save(weight_spearman_1, file = paste0("../output/weight_spearman_1.RData"))
   save(weight_pearson_2, file = paste0("../output/weight_pearson_2RData"))
   save(weight_spearman_2, file = paste0("../output/weight_spearman_2.RData"))
-  weight_var_1<-var_weight(df_train1,"")
-  weight_var_2<-var_weight(df_train2,"")
-  save(weight_var_1, file = paste0("../output/weight_var_1.RData"))
-  save(weight_var_2, file = paste0("../output/weight_var_2.RData"))
+  
+  weight_var_pear_1<-var_weight(df_train1,"pearson")
+  weight_var_pear_2<-var_weight(df_train2,"pearson")
+  save(weight_var_pear_1, file = paste0("../output/weight_var_pear_1.RData"))
+  save(weight_var_pear_2, file = paste0("../output/weight_var_pear_2.RData"))
   weight_simrank_1<-simrank(df_train1)
-  weight_simrank_2<-simrank(df_train2)
   save(weight_simrank_1, file = paste0("../output/weight_simrank_1.RData"))
-  save(weight_simrank_2, file = paste0("../output/weight_simrank_2.RData"))
 }else{
   load("../output/weight_pearson_1.RData")
   load("../output/weight_spearman_1.RData")
   load("../output/weight_pearson_2.RData")
   load("../output/weight_spearman_2.RData")
-  load("../output/weight_var_1.RData")
-  load("../output/weight_var_2.RData")
+  load("../output/weight_var_pear_1.RData")
+  load("../output/weight_var_pear_2.RData")
   load("../output/weight_simrank_1.RData")
-  load("../output/weight_simrank_2.RData")
 }
 
-k=0.5
-neighbors_pearson_1<-get_neighbors_index(weight_pearson_1,k)
-neighbors_pearson_2<-get_neighbors_index(weight_pearson_2,k)
-neighbors_spearman_1<-get_neighbors_index(weight_spearman_1,k)
-neighbors_spearman_2<-get_neighbors_index(weight_spearman_2,k)
-neighbors_var_1<-get_neighbors_index(weight_var_1,k)
-neighbors_var_2<-get_neighbors_index(weight_var_2,k)
-neighbors_simrank_1<-get_neighbors_index(weight_simrank_1,k)
-neighbors_simrank_2<-get_neighbors_index(weight_simrank_2,k)
+k<-c(0.2,0.3,0.4,0.5)
+neighbors_pearson_1<-c()
+neighbors_spearman_1<-c()
+neighbors_var_pear_1<-c()
+neighbors_pearson_2<-c()
+neighbors_spearman_2<-c()
+neighbors_var_pear_2<-c()
+for(i in 1:4){
+  # neighbors_pearson_1[[i]]<-get_neighbors_index(weight_pearson_1,k[i])
+  # neighbors_spearman_1[[i]]<-get_neighbors_index(weight_spearman_1,k[i])
+  # neighbors_var_pear_1[[i]]<-get_neighbors_index(weight_var_pear_1,k[i])
+  neighbors_pearson_2[[i]]<-get_neighbors_index(weight_pearson_2,k[i])
+  neighbors_spearman_2[[i]]<-get_neighbors_index(weight_spearman_2,k[i])
+  neighbors_var_pear_2[[i]]<-get_neighbors_index(weight_var_pear_2,k[i])
+}
+neighbors_simrank_1<-get_neighbors_index(weight_simrank_1,0)
 ```
 
 #### Calculate the prediction score and evaluate the ranked list(for MS data)
 ```{r}
-pred_pearson_1<-pred_1(df_train1,df_test1,weight_pearson_1,neighbors_pearson_1$top.neighbors)
-pred_spearman_1<-pred_1(df_train1,df_test1,weight_spearman_1,neighbors_spearman_1$top.neighbors)
-pred_var_1<-pred_1(df_train1,df_test1,weight_var_1,neighbors_var_1$top.neighbors)
-pred_simrank_1<-pred_1(df_train1,df_test1,weight_simrank_1,neighbors_simrank_1$top.neighbors)
+pearson_score<-c()
+spearman_score<-c()
+var_pear_score<-c()
 
-paste0("By using pearson correlation with threshold ",k,", the expected utility of the ranked list is ",rank_score(pred_pearson_1,df_test1))
-paste0("By using spearman correlation with threshold ",k,", the expected utility of the ranked list is ",rank_score(pred_spearman_1,df_test1))
-paste0("By using variance weight with threshold ",k,", the expected utility of the ranked list is ",rank_score(pred_var_1,df_test1))
-paste0("By using SimRank with threshold ",k,", the expected utility of the ranked list is ",rank_score(pred_simrank_1,df_test1))
+for(i in 1:4){
+  pred_pearson_1<-pred_1(df_train1,df_test1,weight_pearson_1,neighbors_pearson_1[[i]]$top.neighbors)
+  pred_spearman_1<-pred_1(df_train1,df_test1,weight_spearman_1,neighbors_spearman_1[[i]]$top.neighbors)
+  pred_var_pear_1<-pred_1(df_train1,df_test1,weight_var_pear_1,neighbors_var_pear_1[[i]]$top.neighbors)
+  pearson_score[i]<-rank_score(pred_pearson_1,df_test1)
+  spearman_score[i]<-rank_score(pred_spearman_1,df_test1)
+  var_pear_score[i]<-rank_score(pred_var_pear_1,df_test1)
+  
+  pred_pearson_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_pearson_1,neighbors_pearson_1[[i]]$top.neighbors)
+  pred_spearman_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_spearman_1,neighbors_spearman_1[[i]]$top.neighbors)
+  pred_var_pear_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_var_pear_1,neighbors_var_pear_1[[i]]$top.neighbors)
+  pearson_score_noweighted[i]<-rank_score(pred_pearson_1_noweighted,df_test1)
+  spearman_score_noweighted[i]<-rank_score(pred_spearman_1_noweighted,df_test1)
+  var_pear_score_noweighted[i]<-rank_score(pred_var_pear_1_noweighted,df_test1)
+  
+    # paste0("By using pearson correlation with threshold ",k[i],", the expected utility of the ranked list is ",rank_score(pred_pearson_1,df_test1))
+  # paste0("By using spearman correlation with threshold ",k[i],", the expected utility of the ranked list is ",rank_score(pred_spearman_1,df_test1))
+  # paste0("By using variance weight(pearson) with threshold ",k[i],", the expected utility of the ranked list is ",rank_score(pred_var_pear_1,df_test1))
+  # paste0("By using SimRank with threshold ",m[i],", the expected utility of the ranked list is ",rank_score(pred_simrank_1,df_test1))
+}
+  pred_simrank_1<-pred_1(df_train1,df_test1,weight_simrank_1,neighbors_simrank_1$top.neighbors)
+  simrank_score<-rank_score(pred_simrank_1,df_test1)
+  pred_simrank_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_simrank_1,neighbors_simrank_1$top.neighbors)
+  simrank_score_noweighted<-rank_score(pred_simrank_1_noweighted,df_test1)
 ```
 
 ```{r}
-pred_pearson_2<-pred_2(df_train2,df_test2,weight_pearson_2,neighbors_pearson_2$top.neighbors)
-pred_spearman_2<-pred_2(df_train2,df_test2,weight_spearman_2,neighbors_spearman_2$top.neighbors)
-pred_var_2<-pred_2(df_train2,df_test2,weight_var_2,neighbors_var_2$top.neighbors)
+for(i in 1:4){
+  temp1<-weight_pearson_2
+  temp1[temp1>k[i]]<-0
+  temp2<-weight_spearman_2
+  temp2[temp2>k[i]]<-0
+  temp3<-weight_var_pear_2
+  temp3[temp3>k[i]]<-0
+  # pred_pearson_2[i]<-pred_2(df_train2,df_test2,temp1)
+  # pred_spearman_2[i]<-pred_2(df_train2,df_test2,temp2)
+  # pred_var_2[i]<-pred_2(df_train2,df_test2,temp3)
+}
 ```
