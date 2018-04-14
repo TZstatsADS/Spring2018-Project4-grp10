@@ -36,8 +36,7 @@ transfer_1_test<-function(data,train){
 transfer_2<-function(data){
   user_id<-unique(data$User)
   movie<-unique(data$Movie)
-  default<-0
-  user_item_2<-matrix(default,nrow =length(user_id) ,ncol=length(movie))
+  user_item_2<-matrix(NA,nrow =length(user_id) ,ncol=length(movie))
   rownames(user_item_2)<-user_id
   colnames(user_item_2)<-movie
   for(i in 1:length(user_id)){
@@ -119,8 +118,8 @@ rmna <- function(data,train_data){
 
 ##### variance weighting #####
 var_weight <- function(data,method){ 
-  data <- train_data2[,-1]  
-  data <- matrix(as.numeric(data),nrow=nrow(data))
+  #data <- data[,-1]  
+  #data <- matrix(as.numeric(data),nrow=nrow(data))
   variance <- apply(data,2,var,na.rm=T)
   maxv <- max(variance,na.rm=T)
   minv <- min(variance,na.rm=T)
@@ -170,7 +169,7 @@ simrank <- function(train_data, iter=6, c=0.8){
   R_final <- R[1:n,1:n]
   rownames(R_final) <- rownames(train_data)
   colnames(R_final) <- rownames(train_data)
-  return(list(R_final))
+  return(R_final)
 }
 
 ##### Produce a prediction #####
@@ -211,6 +210,31 @@ pred_1<-function(train,test,sim_weight,top.neighbors){
   }
   return(pred.mat)
 }
+pred_1_NoWeightedAverage<-function(train,test,sim_weight,top.neighbors){
+  pred.mat<-matrix(0,nrow=nrow(test),ncol=ncol(train))
+  rownames(pred.mat)<-rownames(test)
+  colnames(pred.mat)<-colnames(train)
+  for(a in 1:nrow(test)){
+    mean_user_a<-mean(train[rownames(test)[a],])
+    a_neighbors<-top.neighbors[[rownames(test)[a]]]
+    neighbors_score<-train[a_neighbors,]
+    if(length(a_neighbors)<=1){
+      if(length(a_neighbors)==0){
+        pred.mat[a,]<-0#if a has no neighbor, then pred score is zero
+        break
+      }
+      else{
+        neighbors_score<-t(neighbors_score)
+      }
+    }
+    weight_a_neighbor<-sim_weight[rownames(test)[a],a_neighbors]
+    k<-1/sum(abs(weight_a_neighbor))
+    temp<-neighbors_score-rowMeans(neighbors_score)
+    pred.mat[a,]<-mean_user_a+k*(weight_a_neighbor%*%temp)
+    pred.mat[a,which(train[rownames(test)[a],]==1)]<-0
+  }
+  return(pred.mat)
+}
 
 ##For movie data
 pred_2 <- function(train_data,test_data,cor){
@@ -246,12 +270,11 @@ rank_score <- function(predict,test){
   #predict<-predict[rownames(predict)%in%rownames(test),]#colnames(predict)%in%colnames(test)
   rank_mat_pred <- ncol(predict)+1-t(apply(predict,1,function(x){return(rank(x,ties.method = 'first'))}))
   rank_mat_test <- ncol(test)+1-t(apply(test,1,function(x){return(rank(x,ties.method = 'first'))}))
-  vec_pred <- ifelse(predict - d > 0, predict - d, 0)
+  #vec_pred <- ifelse(predict - d > 0, predict - d, 0)
   vec_test <- ifelse(test - d > 0, test - d, 0)
-  R_a <- apply(1/(2^((rank_mat_pred-1)/(alpha-1))) * vec_pred,1,sum)
+  R_a <- apply(1/(2^((rank_mat_pred-1)/(alpha-1))) * vec_test,1,sum)
   R_a_max <- apply(1/(2^((rank_mat_test-1)/(alpha-1))) * vec_test,1,sum)
   R <- 100*sum(R_a)/sum(R_a_max)
   return(R)
 }
-
 
