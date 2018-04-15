@@ -8,9 +8,9 @@ Term: Spring 2018
 + Projec title: Collaborative Filtering
 + Team members
 	+ Dong, Jiaqi
-	+ Ji, Hanying 2
-	+ Liu, Mingming 3
-	+ Zhang, Yiyi 4
+	+ Ji, Hanying
+	+ Liu, Mingming
+	+ Zhang, Yiyi
 
 + Project summary: 
 In this project, we implemented several collaborative filtering algorithm based on two datasets:
