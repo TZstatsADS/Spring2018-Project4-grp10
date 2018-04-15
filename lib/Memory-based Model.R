@@ -86,7 +86,7 @@ simweight<-function(data,cor_method){
 }
 
 ######fill in NA
-rmna <- function(data,train_data){
+rmna <- function(data,train_data,method){
   n <- nrow(data)
   loc <- which(is.na(data))
   for (i in loc){
@@ -104,7 +104,7 @@ rmna <- function(data,train_data){
       datax <- train_data[c(a,b),x_y]
       datax[1,is.na(datax[1,])] <- mean(datax[1,],na.rm=T)
       datax[2,is.na(datax[2,])] <- mean(datax[2,],na.rm=T)
-      corr <- cor(t(datax),method ="pearson")
+      corr <- cor(t(datax),method =method)
       cor <- corr[1,2]
       data[a,b] <- cor
       #print(cor)
@@ -126,7 +126,7 @@ var_weight <- function(data,method){
   v <- (variance-minv)/maxv
   datav <- t(data)*v^0.5 
   var_cor <- cor(datav,use="pairwise.complete.obs",method=method)
-  return(var_cor)
+  return(list(cor=var_cor,data=datav))
 }
 
 
@@ -237,7 +237,9 @@ pred_1_NoWeightedAverage<-function(train,test,sim_weight,top.neighbors){
 }
 
 ##For movie data
-pred_2 <- function(train_data,test_data,cor){
+pred_2 <- function(train_data,test_data,cor,threshold){
+  coverage <- length(which(cor<threshold))/nrow(pearson_2)^2
+  cor[cor<threshold] <- 0
   test_data <- matrix(as.numeric(test_data),nrow=nrow(test_data))
   n <- nrow(test_data)
   m <- ncol(test_data)
@@ -258,7 +260,33 @@ pred_2 <- function(train_data,test_data,cor){
       pred.matrix[a,i] <- user_mean[a]+(sum(scale_data[,i]*cor[a,],na.rm=T)*sqrt(user_var[a])/sum(cor[a,]*(!is.na(scale_data[,i])),na.rm=T))
     }
   }
-  return(prediction= pred.matrix)
+  return(list(prediction= pred.matrix,cov=coverage))
+}
+
+pred_2_noweighted <- function(train_data,test_data,cor,threshold){
+  coverage <- length(which(cor<threshold))/nrow(pearson_2)^2
+  cor[cor<threshold] <- 0
+  test_data <- matrix(as.numeric(test_data),nrow=nrow(test_data))
+  n <- nrow(test_data)
+  m <- ncol(test_data)
+  test_user <- rownames(test_data)
+  rownames(test_data) <- c(1:n)
+  test_index <- apply(!is.na(test_data),1,which)
+  user_mean <- rowMeans(test_data,na.rm=T)
+  rownames(cor) <- c(1:nrow(train_data))
+  colnames(cor) <- c(1:nrow(train_data))
+  data <- matrix(as.numeric(train_data),nrow=nrow(train_data))
+  scale_data <- scale(data,center=T)
+  rownames(data) <- c(1:nrow(train_data))
+  variance <- apply(data,2,var,na.rm=T)
+  user_var <- apply(data,1,var,na.rm=T)
+  pred.matrix <- matrix(NA,nrow=n,ncol=m)
+  for (a in 1:n){
+    for (i in test_index[[a]]){
+      pred.matrix[a,i] <- user_mean[a]+(sum(scale_data[,i]*cor[a,],na.rm=T)*sqrt(user_var[a])/sum(cor[a,]*(!is.na(scale_data[,i])),na.rm=T))
+    }
+  }
+  return(list(prediction= pred.matrix,cov=coverage))
 }
 
 
@@ -275,6 +303,11 @@ rank_score <- function(predict,test){
   R_a <- apply(1/(2^((rank_mat_pred-1)/(alpha-1))) * vec_test,1,sum)
   R_a_max <- apply(1/(2^((rank_mat_test-1)/(alpha-1))) * vec_test,1,sum)
   R <- 100*sum(R_a)/sum(R_a_max)
-  return(R)
+  return(list(R,coverage))
 }
 
+#Evaluation for MOVIE data
+MAE <- function(predict,test){
+  mae <- mean(abs(predict-test),na.rm=T)
+  return(mae)
+}
