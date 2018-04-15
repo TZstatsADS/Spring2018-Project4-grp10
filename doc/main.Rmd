@@ -115,7 +115,11 @@ if(run.CM.est){
 CM.error.test <- sum(abs(CM.est-df.test2),na.rm = T)/ sum(!is.na(CM.est-df.test2))
 print(paste0("The test error of the cluster model is ", round(CM.error.test,4),"."))
 ```
-### Memory-Based Algorithm  
+### Memory-Based Algorithm
+Based on user database which contains the history of users' behaviours or preferance expressed by a set of votes vi,j corresponding to the vote for user i on item j, Memory-Based Algorithm predict the votes of the active users on items new to them based on a set of weights between users calculated from the user database.
+It can deal with both implicit data(MS website), which is binary, showing that whether a user voted or not, and explicit data(Movie), showing the scores. By using default voting, we first used different methods to calculate correlations between users(pearson, spearman, pearson+variance weight, SimRank), and then defined a set of neighbors which have specific correlations with an active user by setting weight thresholds.
+For prediction part, predicted scores are assigned to the items users never voted before. For evaluation part, the implicit data used expected utility of a ranked list of items to show how users are satisfied with the recommendation and the explicit data used MAE to get the accuracy.
+During the process, besides using different methods to calculate correlation, different thresholds which showed different coverage and the way to calculate predicted scores(scaled or not) are also two variables in this algorithm.
 #### Stage
 ```{r}
 transfer_1 <- FALSE
