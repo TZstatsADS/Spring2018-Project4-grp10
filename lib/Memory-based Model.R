@@ -138,7 +138,7 @@ get_neighbors_index<-function(sim_weight,threshold=0.5){
   for(i in 1:nrow(sim_weight)){
     neighbors_by_threshold[[i]]<-colnames(sim_weight)[(abs(sim_weight[i,])>threshold) & (sim_weight[i,]!=1)]#whose absolute cor weight larger than threshold(exclude user itself)
   }
-  coverage_pre<-sum(sim_weight<threshold)/(nrow(sim_weight)*nrow(sim_weight))
+  coverage_pre<-sum(sim_weight>=threshold)/(nrow(sim_weight)*nrow(sim_weight))
   return(list(top.neighbors=neighbors_by_threshold,coverage_pre=coverage_pre))
 }
 
