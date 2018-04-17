@@ -13,9 +13,9 @@ Term: Spring 2018
 	+ Liu, Mingming
 	+ Zhang, Yiyi
 
-![image](figs/1.png)
+                                                               ![image](figs/1.png)
 
-![image](figs/2.png)
+                                                               ![image](figs/2.png)
 
 + Project summary: 
 In this project, we implemented several collaborative filtering algorithm based on two datasets:
@@ -27,7 +27,7 @@ Goal: Evaulating the result of recommendation by [1]Memory-Based Algorithm, comb
 
 + Ji, Hanying: Mainly took responsibility of Memory-Based Algorithm with Liu, MingMing. Focused on implicit Microsoft website dataset and wrote funtions for [1]reshaping data(transfer_1,transfer_1_test);[2]calculating similarity weight of pearson and spearman correlation(simweight);[3]selecting neighbors by weighting threshold and calculate coverage(get_neighbors_index);[4]predicting scores by scaling/no scaling(pred_1);[5]evaluating different combinations of methods by ranked list score(ranked_score).Collaborated with Zhang, Yiyi in writing the main.Rmd file.
 
-+ Liu, Mingming: Presenter in this project. Mainly responsible for Memory-Based Algorithm with Ji, Hanying. Foucused on explicit Movie dataset and wrote functions for \n[1] reshaping data2; [2]  calculating pearson correlation, spearman correlation, simrank and vaiance weighting correlation; [3] replacing NA with numbers in each correlation; [4] writing prediction function for dataset2 by scaling/ no scaling; [5] evaluating different combinations of methods by MAE score; [6] designing ppt. Collaborated with Ji, Hanying, Zhang, Yiyi in writing the main.Rmd file. 
++ Liu, Mingming: Presenter in this project. Mainly responsible for Memory-Based Algorithm with Ji, Hanying. Foucused on explicit Movie dataset and wrote functions for \n[1] reshaping data2; [2]  calculating pearson correlation, spearman correlation, simrank and vaiance weighting correlation; [3] replacing NA with numbers in each correlation; [4] writing prediction function for dataset2 by scaling/ no scaling; [5] evaluating different combinations of methods by MAE score; [6] designing ppt. 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
