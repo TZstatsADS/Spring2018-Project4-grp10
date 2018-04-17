@@ -115,6 +115,7 @@ if(run.CM.est){
 CM.error.test <- sum(abs(CM.est-df.test2),na.rm = T)/ sum(!is.na(CM.est-df.test2))
 print(paste0("The test error of the cluster model is ", round(CM.error.test,4),"."))
 ```
+
 ### Memory-Based Algorithm
 Based on user database which contains the history of users' behaviours or preferance expressed by a set of votes vi,j corresponding to the vote for user i on item j, Memory-Based Algorithm predict the votes of the active users on items new to them based on a set of weights between users calculated from the user database.
 It can deal with both implicit data(MS website), which is binary, showing that whether a user voted or not, and explicit data(Movie), showing the scores. By using default voting, we first used different methods to calculate correlations between users(pearson, spearman, pearson+variance weight, SimRank), and then defined a set of neighbors which have specific correlations with an active user by setting weight thresholds.
@@ -187,7 +188,7 @@ if(simweight & var_weight & simrank & get_neighbors_index){
   weight_simrank_1<-simrank(df_train1)
   save(weight_simrank_1, file = paste0("../output/weight_simrank_1.RData"))
   
-  k<-c(0,0.2,0.3,0.4,0.5)
+  k<-c(-10,0.2,0.3,0.4,0.5)
   neighbors_pearson_1<-c()
   neighbors_spearman_1<-c()
   neighbors_var_pear_1<-c()
@@ -277,15 +278,15 @@ if(pred_1 & rank_score){
 ```
 
 ```{r}
-for(i in 1:4){
-  temp1<-weight_pearson_2
-  temp1[temp1>k[i]]<-0
-  temp2<-weight_spearman_2
-  temp2[temp2>k[i]]<-0
-  temp3<-weight_var_pear_2
-  temp3[temp3>k[i]]<-0
+#for(i in 1:4){
+  #temp1<-weight_pearson_2
+  #temp1[temp1>k[i]]<-0
+  #temp2<-weight_spearman_2
+  #temp2[temp2>k[i]]<-0
+  #temp3<-weight_var_pear_2
+  #temp3[temp3>k[i]]<-0
   # pred_pearson_2[i]<-pred_2(df_train2,df_test2,temp1)
   # pred_spearman_2[i]<-pred_2(df_train2,df_test2,temp2)
   # pred_var_2[i]<-pred_2(df_train2,df_test2,temp3)
-}
+#}
 ```
