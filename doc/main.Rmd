@@ -1,0 +1,291 @@
+---
+title: "Project 4 - Collaborative Filtering"
+author: "Group 10"
+date: "4/18/2018"
+output: pdf_document
+---
+
+## Step 0: Load Packages & Specify Directories
+```{r}
+# Packages that will be used
+packages.used <- c("reshape2", "Hmisc")
+# Check packages that need to be installed
+packages.needed <- setdiff(packages.used, 
+                           intersect(installed.packages()[,1], 
+                                     packages.used))
+# Install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE,
+                   repos='http://cran.us.r-project.org')
+}
+# Load libraries  
+library("reshape2")
+library("Hmisc")
+
+# Set working directory to the doc folder 
+#setwd("~/GitHub/Spring2018-Project4-group-10/doc")
+```
+
+## Step 1: Load and Process Data
+```{r}
+train1 <- read.csv("../data/MS_sample/data_train.csv", header=TRUE)[-1]
+test1 <- read.csv("../data/MS_sample/data_test.csv", header=TRUE)[-1]
+train2 <- read.csv("../data/eachmovie_sample/data_train.csv", header=TRUE)
+test2 <- read.csv("../data/eachmovie_sample/data_test.csv", header=TRUE)
+
+#library("reshape2")
+df.train2 <- dcast(train2, User~Movie, value.var = "Score", fill = NA)
+df.test2 <- dcast(test2, User~Movie, value.var = "Score", fill = NA)
+rownames(df.train2) <- df.train2[,1]
+rownames(df.test2) <- df.test2[,1]
+df.train2 <- df.train2[,-1]
+df.test2 <- df.test2[,-1]
+#df.train2[1:6,1:9]
+```
+## Step 2: Implement Algorithm
+### Model-Based Algorithm (Cluster Models)
+#### Stage  
+```{r}
+run.CM.cv <- FALSE
+run.CM.pars <- FALSE
+run.CM.est <- FALSE
+
+source("../lib/ClusterModel.R")
+### cluster.cv -- Perfom K-Fold Cross-Validation
+### cluster.em -- Learn Parameters Using EM Algorithm
+### cluster.score -- Compute Score Estimation 
+### cluster.pi -- Compute Responsibilities  
+```
+
+#### Choose C by 5-Fold Cross-Validation  
+```{r}
+CM.C.list <- c(seq(3,13, by=2))
+
+if(run.CM.cv){
+  CM.error.validation <- cluster.cv(df.train2, CM.C.list)
+  save(CM.error.validation, file = paste0("../output/CM.error.validation.RData"))
+}else{
+  load("../output/CM.error.validation.RData")
+}
+
+#library("Hmisc")
+CM.error.cv <- colMeans(CM.error.validation)
+CM.error.cv.sd <- apply(CM.error.validation, 2, sd)/sqrt(nrow(CM.error.validation))
+CM.c.min <- which.min(CM.error.cv)
+CM.c.max <- which.max(CM.error.cv)
+CM.error.cv.lbound <- CM.error.cv[CM.c.min] - CM.error.cv.sd[CM.c.min]
+CM.error.cv.ubound <- CM.error.cv[CM.c.min] + CM.error.cv.sd[CM.c.min]
+CM.error.cv.lylim <- min(CM.error.cv-CM.error.cv.sd)
+CM.error.cv.uylim <- max(CM.error.cv+CM.error.cv.sd)
+plot(CM.C.list, CM.error.cv, main = "Cluster Models 5-Fold Cross-Validation",
+     xlab = "Number of Classes", ylab = "Prediction Error", 
+     ylim = c(CM.error.cv.lylim, CM.error.cv.uylim), 
+     xaxt = "n", type = "l", col="steelblue2")
+axis(1, at = CM.C.list, labels = CM.C.list)
+errbar(CM.C.list, CM.error.cv, 
+       CM.error.cv+CM.error.cv.sd, CM.error.cv-CM.error.cv.sd, 
+       add = TRUE, errbar.col = gray(0.4), lwd = 0.5)
+points(CM.C.list, CM.error.cv, col="steelblue2",pch = 19)
+abline(h=CM.error.cv.lbound, col=gray(0.4), lty=2)
+abline(h=CM.error.cv.ubound, col=gray(0.4), lty=2)
+dev.copy2pdf(file ="../figs/CM.CrossValidation.pdf")
+CM.C.best <- CM.C.list[(CM.error.cv>CM.error.cv.lbound) 
+                       & (CM.error.cv<CM.error.cv.ubound)][1]
+print(paste0("The best number of classes is ", CM.C.best, "."))  
+```
+#### Learn Parameters with the C Chosen 
+```{r}
+if(run.CM.pars){
+  CM.pars <- cluster.em(df.train2, CM.C.best, 0.05)
+  save(CM.pars, file = paste0("../output/CM.pars.RData"))
+}else{
+  load("../output/CM.pars.RData")
+}
+```
+
+####  Compute Score Estimation & Test Error  
+```{r}
+if(run.CM.est){
+  CM.est <- cluster.score(df.train2, CM.pars)
+  save(CM.est, file = paste0("../output/CM.est.RData"))
+}else{
+  load("../output/CM.est.RData")
+}
+
+CM.error.test <- sum(abs(CM.est-df.test2),na.rm = T)/ sum(!is.na(CM.est-df.test2))
+print(paste0("The test error of the cluster model is ", round(CM.error.test,4),"."))
+```
+### Memory-Based Algorithm
+Based on user database which contains the history of users' behaviours or preferance expressed by a set of votes vi,j corresponding to the vote for user i on item j, Memory-Based Algorithm predict the votes of the active users on items new to them based on a set of weights between users calculated from the user database.
+It can deal with both implicit data(MS website), which is binary, showing that whether a user voted or not, and explicit data(Movie), showing the scores. By using default voting, we first used different methods to calculate correlations between users(pearson, spearman, pearson+variance weight, SimRank), and then defined a set of neighbors which have specific correlations with an active user by setting weight thresholds.
+For prediction part, predicted scores are assigned to the items users never voted before. For evaluation part, the implicit data used expected utility of a ranked list of items to show how users are satisfied with the recommendation and the explicit data used MAE to get the accuracy.
+During the process, besides using different methods to calculate correlation, different thresholds which showed different coverage and the way to calculate predicted scores(scaled or not) are also two variables in this algorithm.
+#### Stage
+```{r}
+transfer_1 <- FALSE
+transfer_1_test <- FALSE
+transfer_2 <- FALSE
+simweight <- FALSE
+rmna <-FALSE
+var_weight <- FALSE
+simrank <- FALSE
+pred_1 <- FALSE
+pred_2 <- FALSE
+rank_score <-FALSE
+
+source("../lib/Memory-based Model.R")
+### transfer_1 -- transfer MS training data
+### transfer_1_test -- transfer MS testing data to dataframe with columns of all websites
+### transfer_2 -- transfer Movie data
+### simweight --  similarity weight
+### rmna -- 
+### var_weight -- variance weight
+### simrank -- simrank weight
+### get_neighbors_index -- Neighbors selection by weight threshold
+### pred_1 -- Produce a prediction score matrix for dataset MS(implicit)
+### pred_2 -- Produce a prediction score matrix for dataset Movie(explicit)
+### rank_score -- Evaluation for implicit dataset: expected utility of ranked list
+```
+
+#### Reshape dataset
+```{r}
+if(transfer_1 & transfer_1_test & transfer_2){
+  df_train1<-transfer_1(train1)
+  df_test1<-transfer_1_test(test1,df_train1)
+  df_train2<-transfer_2(train2)
+  df_test2<-transfer_2(test2)
+  save(df_train1, file = paste0("../output/df_train1.RData"))
+  save(df_test1, file = paste0("../output/df_test1.RData"))
+  save(df_train2, file = paste0("../output/df_train2.RData"))
+  save(df_test2, file = paste0("../output/df_test2.RData"))
+}else{
+  load("../output/df_train1.RData")
+  load("../output/df_test1.RData")
+  load("../output/df_train2.RData")
+  load("../output/df_test2.RData")
+}
+```
+
+#### get weight matrix and select neighbors by threshold
+```{r}
+if(simweight & var_weight & simrank & get_neighbors_index){
+  weight_pearson_1<-simweight(df_train1,"pearson")
+  weight_spearman_1<-simweight(df_train1,"spearman")
+  weight_pearson_2_temp<-simweight(df_train2,"pearson")
+  weight_pearson_2<-rmna(weight_pearson_2_temp,df_train2)
+  weight_spearman_2_temp<-simweight(df_train2,"spearman")
+  weight_spearman_2<-rmna(weight_spearman_2_temp,df_train2)
+  save(weight_pearson_1, file = paste0("../output/weight_pearson_1.RData"))
+  save(weight_spearman_1, file = paste0("../output/weight_spearman_1.RData"))
+  save(weight_pearson_2, file = paste0("../output/weight_pearson_2RData"))
+  save(weight_spearman_2, file = paste0("../output/weight_spearman_2.RData"))
+  
+  weight_var_pear_1<-var_weight(df_train1,"pearson")
+  weight_var_pear_2<-var_weight(df_train2,"pearson")
+  save(weight_var_pear_1, file = paste0("../output/weight_var_pear_1.RData"))
+  save(weight_var_pear_2, file = paste0("../output/weight_var_pear_2.RData"))
+  weight_simrank_1<-simrank(df_train1)
+  save(weight_simrank_1, file = paste0("../output/weight_simrank_1.RData"))
+  
+  k<-c(0,0.2,0.3,0.4,0.5)
+  neighbors_pearson_1<-c()
+  neighbors_spearman_1<-c()
+  neighbors_var_pear_1<-c()
+  neighbors_pearson_2<-c()
+  neighbors_spearman_2<-c()
+  neighbors_var_pear_2<-c()
+  for(i in 1:5){
+    neighbors_pearson_1[[i]]<-get_neighbors_index(weight_pearson_1,k[i])
+    neighbors_spearman_1[[i]]<-get_neighbors_index(weight_spearman_1,k[i])
+    neighbors_var_pear_1[[i]]<-get_neighbors_index(weight_var_pear_1,k[i])
+    neighbors_pearson_2[[i]]<-get_neighbors_index(weight_pearson_2,k[i])
+    neighbors_spearman_2[[i]]<-get_neighbors_index(weight_spearman_2,k[i])
+    neighbors_var_pear_2[[i]]<-get_neighbors_index(weight_var_pear_2,k[i])
+    }
+  neighbors_simrank_1<-get_neighbors_index(weight_simrank_1,0)
+  save(neighbors_pearson_1, file = paste0("../output/neighbors_pearson_1.RData"))
+  save(neighbors_spearman_1, file = paste0("../output/neighbors_spearman_1.RData"))
+  save(neighbors_var_pear_1, file = paste0("../output/neighbors_var_pear_1.RData"))
+  save(neighbors_pearson_2, file = paste0("../output/neighbors_pearson_2.RData"))
+  save(neighbors_spearman_2, file = paste0("../output/neighbors_spearman_2.RData"))
+  save(neighbors_simrank_1, file = paste0("../output/neighbors_simrank_1.RData"))
+  }else{
+  load("../output/weight_pearson_1.RData")
+  load("../output/weight_spearman_1.RData")
+  load("../output/weight_pearson_2.RData")
+  load("../output/weight_spearman_2.RData")
+  load("../output/weight_var_pear_1.RData")
+  load("../output/weight_var_pear_2.RData")
+  load("../output/weight_simrank_1.RData")
+  
+  load("../output/neighbors_pearson_1.RData")
+  load("../output/neighbors_spearman_1.RData")
+  load("../output/neighbors_pearson_2.RData")
+  load("../output/neighbors_spearman_2.RData")
+  load("../output/neighbors_var_pear_1.RData")
+  load("../output/neighbors_var_pear_2.RData")
+  load("../output/neighbors_simrank_1.RData")
+}
+```
+
+#### Calculate the prediction score and evaluate the ranked list(for MS data)
+```{r}
+if(pred_1 & rank_score){
+  pearson_score<-c()
+  spearman_score<-c()
+  var_pear_score<-c()
+  pearson_score_noweighted<-c()
+  spearman_score_noweighted<-c()
+  var_pear_score_noweighted<-c()
+  for(i in 1:5){
+    pred_pearson_1<-pred_1(df_train1,df_test1,weight_pearson_1,neighbors_pearson_1[[i]]$top.neighbors)
+    pred_spearman_1<-pred_1(df_train1,df_test1,weight_spearman_1,neighbors_spearman_1[[i]]$top.neighbors)
+    pred_var_pear_1<-pred_1(df_train1,df_test1,weight_var_pear_1,neighbors_var_pear_1[[i]]$top.neighbors)
+    pearson_score[i]<-rank_score(pred_pearson_1,df_test1)
+    spearman_score[i]<-rank_score(pred_spearman_1,df_test1)
+    var_pear_score[i]<-rank_score(pred_var_pear_1,df_test1)
+    pred_pearson_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_pearson_1,neighbors_pearson_1[[i]]$top.neighbors)
+    pred_spearman_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_spearman_1,neighbors_spearman_1[[i]]$top.neighbors)
+    pred_var_pear_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_var_pear_1,neighbors_var_pear_1[[i]]$top.neighbors)
+    pearson_score_noweighted[i]<-rank_score(pred_pearson_1_noweighted,df_test1)
+    spearman_score_noweighted[i]<-rank_score(pred_spearman_1_noweighted,df_test1)
+    var_pear_score_noweighted[i]<-rank_score(pred_var_pear_1_noweighted,df_test1)
+}
+  pred_simrank_1<-pred_1(df_train1,df_test1,weight_simrank_1,neighbors_simrank_1$top.neighbors)
+  simrank_score<-rank_score(pred_simrank_1,df_test1)
+  pred_simrank_1_noweighted<-pred_1_NoWeightedAverage(df_train1,df_test1,weight_simrank_1,neighbors_simrank_1$top.neighbors)
+  simrank_score_noweighted<-rank_score(pred_simrank_1_noweighted,df_test1)
+  
+  save(pearson_score, file = paste0("../output/pearson_score.RData"))
+  save(spearman_score, file = paste0("../output/spearman_score.RData"))
+  save(var_pear_score, file = paste0("../output/var_pear_score.RData"))
+  save(simrank_score, file = paste0("../output/simrank_score.RData"))
+  save(pearson_score_noweighted, file = paste0("../output/pearson_score_noweighted.RData"))
+  save(spearman_score_noweighted, file = paste0("../output/spearman_score_noweighted.RData"))
+  save(var_pear_score_noweighted, file = paste0("../output/var_pear_score_noweighted.RData"))
+  save(simrank_score_noweighted, file = paste0("../output/simrank_score_noweighted.RData"))
+}else{
+  load("../output/pearson_score.RData")
+  load("../output/spearman_score.RData")
+  load("../output/var_pear_score.RData")
+  load("../output/simrank_score.RData")
+  load("../output/pearson_score_noweighted.RData")
+  load("../output/spearman_score_noweighted.RData")
+  load("../output/var_pear_score_noweighted.RData")
+  load("../output/simrank_score_noweighted.RData")
+  }
+```
+
+```{r}
+for(i in 1:4){
+  temp1<-weight_pearson_2
+  temp1[temp1>k[i]]<-0
+  temp2<-weight_spearman_2
+  temp2[temp2>k[i]]<-0
+  temp3<-weight_var_pear_2
+  temp3[temp3>k[i]]<-0
+  # pred_pearson_2[i]<-pred_2(df_train2,df_test2,temp1)
+  # pred_spearman_2[i]<-pred_2(df_train2,df_test2,temp2)
+  # pred_var_2[i]<-pred_2(df_train2,df_test2,temp3)
+}
+```
