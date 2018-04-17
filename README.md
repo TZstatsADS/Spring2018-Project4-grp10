@@ -13,9 +13,9 @@ Term: Spring 2018
 	+ Liu, Mingming
 	+ Zhang, Yiyi
 
-                                                               ![image](figs/1.png)
+![image](figs/1.png)
 
-                                                               ![image](figs/2.png)
+![image](figs/2.png)
 
 + Project summary: 
 In this project, we implemented several collaborative filtering algorithm based on two datasets:
