@@ -18,6 +18,7 @@ In this project, we implemented several collaborative filtering algorithm based 
 [1]Microsoft Website(implicit): user database with 4151 users and 269 websites, recording whether a user visited a website or not by binary 0-1;
 [2]Each Movie(explicit): user database with 5055 users and 1619 movies, recording uses's votes if exist, which range from 1 to 5.
 Goal: Evaulating the result of recommendation by [1]Model-Based Algorithm (Cluster Model) and [2]Memory-Based Algorithm, combined with several methods in calculating similarity weights, selecting neighbors by setting threshold, rating normalization to get the expected utility of the ranked list for implicit and MAE for explicit data.
+Conclusion: For data1, the Simrank correlation is better than other correlation. For data2, the Memory-Based Model (pearson, threshold=0.2) is better than the Cluster Model. The Variance Weighting improve the performance for data1, while lower the performance for data2. The best threshold is 0.2 for both data sets.
 
 [**`main.Rmd`**](doc/main.Rmd)/[**`main.nb.html`**](doc/main.nb.html): project report 
 
@@ -38,7 +39,7 @@ Goal: Evaulating the result of recommendation by [1]Model-Based Algorithm (Clust
 
 + Yiyi, Zhang: Built and implemented the Cluster Model to Data Set 2. Constructed the notebook structure and wrote ToC, Step 0-1, and the cluster model part in the main.Rmd file. Downloaded the datasets and reference papers, and organized the repository including the READMEs. 
 
-+ Jiaqi, Dong: [1]Write up the Evaluation functions. [2]Constructed Step3 of the notebook , [3]Write up the evaluation part in the main.Rmd file. [4]Do the prediction and evaluate the MAE score of spearman method.
++ Jiaqi, Dong: [1] Write up the Evaluation functions. [2] Write up the table_function. [3] Construct the evaluation part in the main.Rmd file. [4] Do the prediction and evaluate the MAE score of spearman method.
 
  Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
