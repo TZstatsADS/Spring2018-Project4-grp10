@@ -1,5 +1,6 @@
 
 
+
 # Project 4: Collaborative Filtering
 
 ### [Project Description](doc/project4_desc.md)
@@ -43,6 +44,7 @@ Conclusion: For data1, the Simrank correlation is better than other correlation.
 
  PS: Some similiarity weighting matrix is too large and can't be upload to github so we upload it to google drive. The link is:
  https://drive.google.com/drive/folders/1iWA7Y9CbPxi3Ryml_B-eXpTQsQ7G1RYx?usp=sharing
+ 
  Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
