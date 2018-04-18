@@ -6,4 +6,4 @@ The figs directory contains the figures. This directory only contains generated 
 + **Model-Based Method (Cluster Model)**:  
   + [`CM.CrossValidation.pdf`](CM.CrossValidation.pdf): CM Cross-Validation Result
 + **Memory-Based Algorithms**:  
-  + [`1.pgn`](1.pgn)/[`2.pgn`](2.pgn): Memory-Based Algorithm Prediction Results
+  + [`1.png`](1.png)/[`2.png`](2.png): Memory-Based Algorithm Prediction Results
