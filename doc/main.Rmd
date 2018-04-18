@@ -44,6 +44,7 @@ This project is based on the following two datasets.
 * Data Set 1: [Microsoft Web Data][1]  
 * Data Set 2: [EachMovie][2]   
 
+
 To alleviate computation burden, 5,000 sampled users from the full data above have been used in this notebook.  
 ```{r}
 train1 <- read.csv("../data/MS_sample/data_train.csv", header=TRUE)[-1]
@@ -59,6 +60,26 @@ rownames(df.test2) <- df.test2[,1]
 df.train2 <- df.train2[,-1]
 df.test2 <- df.test2[,-1]
 #df.train2[1:6,1:9]
+```
+
+
+##### Reshape Dataset
+```{r}
+if(transfer_1 & transfer_1_test & transfer_2){
+  df_train1<-transfer_1(train1)
+  df_test1<-transfer_1_test(test1,df_train1)
+  df_train2<-transfer_2(train2)
+  df_test2<-transfer_2(test2)
+  save(df_train1, file = paste0("../output/df_train1.RData"))
+  save(df_test1, file = paste0("../output/df_test1.RData"))
+  save(df_train2, file = paste0("../output/df_train2.RData"))
+  save(df_test2, file = paste0("../output/df_test2.RData"))
+}else{
+  load("../output/df_train1.RData")
+  load("../output/df_test1.RData")
+  load("../output/df_train2.RData")
+  load("../output/df_test2.RData")
+}
 ```
 
 ### Step 2: Implement Algorithm  {#Step2}  
@@ -175,24 +196,6 @@ source("../lib/Memory-based Model.R")
 ### rank_score -- Evaluation for implicit dataset: expected utility of ranked list
 ```
 
-##### Reshape Dataset
-```{r}
-if(transfer_1 & transfer_1_test & transfer_2){
-  df_train1<-transfer_1(train1)
-  df_test1<-transfer_1_test(test1,df_train1)
-  df_train2<-transfer_2(train2)
-  df_test2<-transfer_2(test2)
-  save(df_train1, file = paste0("../output/df_train1.RData"))
-  save(df_test1, file = paste0("../output/df_test1.RData"))
-  save(df_train2, file = paste0("../output/df_train2.RData"))
-  save(df_test2, file = paste0("../output/df_test2.RData"))
-}else{
-  load("../output/df_train1.RData")
-  load("../output/df_test1.RData")
-  load("../output/df_train2.RData")
-  load("../output/df_test2.RData")
-}
-```
 
 ##### Compute Weight Matrix and Select Neighbors by Threshold
 ```{r}
