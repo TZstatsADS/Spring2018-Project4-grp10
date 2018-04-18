@@ -205,7 +205,8 @@ run.get_neighbors_index<- FALSE
 ##### Compute Weight Matrix and Select Neighbors by Threshold
 ```{r}
 if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
-  weight_pearson_1<-simweight(df_train1,"pearson")
+  # calculate similarity weight by different methods
+  weight_pearson_1<-simweight(df_train1,"pearson")
   weight_spearman_1<-simweight(df_train1,"spearman")
   weight_pearson_2_temp<-simweight(df_train2,"pearson")
   weight_pearson_2<-rmna(weight_pearson_2_temp,df_train2)
@@ -216,13 +217,17 @@ if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
   save(weight_pearson_2, file = paste0("../output/weight_pearson_2RData"))
   save(weight_spearman_2, file = paste0("../output/weight_spearman_2.RData"))
   
+  # calculate variance weight combined with pearson similarity weight
   weight_var_pear_1<-var_weight(df_train1,"pearson")
   weight_var_pear_2<-var_weight(df_train2,"pearson")
   save(weight_var_pear_1, file = paste0("../output/weight_var_pear_1.RData"))
   save(weight_var_pear_2, file = paste0("../output/weight_var_pear_2.RData"))
+  
+  # calculate SimRank
   weight_simrank_1<-simrank(df_train1)
   save(weight_simrank_1, file = paste0("../output/weight_simrank_1.RData"))
   
+  # select each user's neighbors index from weight matrix by different threshold
   k<-c(-10,0.2,0.3,0.4,0.5)
   neighbors_pearson_1<-c()
   neighbors_spearman_1<-c()
@@ -264,8 +269,9 @@ if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
 }
 ```
 
-##### Calculate PredictionSscore and Evaluate Ranked List  
+##### Calculate Prediction Score and Evaluate Ranked List  
 ```{r}
+# predict vote by using scaled/non_scaled z-score
 if(run.pred_1 & run.rank_score){
   pearson_score<-c()
   spearman_score<-c()
