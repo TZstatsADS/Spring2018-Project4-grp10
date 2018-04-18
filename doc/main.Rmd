@@ -7,6 +7,7 @@ output:
   pdf_document: default
 ---
 ## Table of Contents  
+[Introduction](#Intro)  
 [Step 0: Load Packages & Specify Directories](#Step0)  
 [Step 1: Load and Process Data](#Step1)  
 [Step 2: Implement Algorithm](#Step2)  
@@ -15,6 +16,14 @@ output:
 [1]: https://archive.ics.uci.edu/ml/datasets/Anonymous+Microsoft+Web+Data   
 [2]: http://www.gatsby.ucl.ac.uk/~chuwei/data/EachMovie/eachmovie.html  
 [3]: https://github.com/TZstatsADS/ADS_Teaching/blob/master/Tutorials/wk12-notes_cluster/document.pdf
+
+### Introduction {#Intro}   
+This project will examine two classes of collaborative filtering algorithms, i.e., the model-based algorithm (cluster model) and the memory-based algorithms. The algorithms will be evaluated for both the implicity and the explicity voting databases as follows:   
+
+* Data Set 1 [Microsoft Web Data][1]: an implicity dataset that captures individual visits to various areas in the Microsoft corporate website.     
+* Data Set 2 [EachMovie][2], an explicity dataset that captures individual ratings ranged in value from 1 to 6 on various movies.  
+
+Note that 5,000 sampled users from the full data above will be used in this notebook to alleviate computation burden. In addition to implementing the memory-based algorithm (with Pearson or Spearman correlation, with and without variance weighting, and selecting neighbours) to both datasets, we will implement SimRank to Data Set 1 and the model-based algorithm (cluster model) to Data Set 2. To compare the predictive accuracy of the various methods, we will apply ranked scoring and mean absolute error (MAE) to Data Set 1 and Data Set 2 respectively.  
 
 ### Step 0: Load Packages & Specify Directories {#Step0}  
 There are two packages used in this notebook, which are "reshape2" and "Hmisc". 
