@@ -1,6 +1,5 @@
 
 
-
 # Project 4: Collaborative Filtering
 
 ### [Project Description](doc/project4_desc.md)
@@ -21,6 +20,8 @@ In this project, we implemented several collaborative filtering algorithm based 
 Goal: Evaulating the result of recommendation by [1]Model-Based Algorithm (Cluster Model) and [2]Memory-Based Algorithm, combined with several methods in calculating similarity weights, selecting neighbors by setting threshold, rating normalization to get the expected utility of the ranked list for implicit and MAE for explicit data.
 
 [**`main.Rmd`**](doc/main.Rmd)/[**`main.nb.html`**](doc/main.nb.html): project report 
+
+
 [**`ads_project4_group10.pptx`**](doc/ads_project4_group10.pptx): presentation slides   
 
 
