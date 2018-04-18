@@ -2,10 +2,22 @@
 title: "Project 4 - Collaborative Filtering"
 author: "Group 10"
 date: "4/18/2018"
-output: pdf_document
+output:
+  html_notebook: default
+  pdf_document: default
 ---
+## Table of Contents  
+[Step 0: Load Packages & Specify Directories](#Step0)  
+[Step 1: Load and Process Data](#Step1)  
+[Step 2: Implement Algorithm](#Step2)  
+[Step 3: Evaluation](#Step3)  
 
-## Step 0: Load Packages & Specify Directories
+[1]: https://archive.ics.uci.edu/ml/datasets/Anonymous+Microsoft+Web+Data   
+[2]: http://www.gatsby.ucl.ac.uk/~chuwei/data/EachMovie/eachmovie.html  
+[3]: https://github.com/TZstatsADS/ADS_Teaching/blob/master/Tutorials/wk12-notes_cluster/document.pdf
+
+### Step 0: Load Packages & Specify Directories {#Step0}  
+There are two packages used in this notebook, which are "reshape2" and "Hmisc". 
 ```{r}
 # Packages that will be used
 packages.used <- c("reshape2", "Hmisc")
@@ -26,7 +38,13 @@ library("Hmisc")
 #setwd("~/GitHub/Spring2018-Project4-group-10/doc")
 ```
 
-## Step 1: Load and Process Data
+### Step 1: Load and Process Data {#Step1}   
+This project is based on the following two datasets.  
+
+* Data Set 1: [Microsoft Web Data][1]  
+* Data Set 2: [EachMovie][2]   
+
+To alleviate computation burden, 5,000 sampled users from the full data above have been used in this notebook.  
 ```{r}
 train1 <- read.csv("../data/MS_sample/data_train.csv", header=TRUE)[-1]
 test1 <- read.csv("../data/MS_sample/data_test.csv", header=TRUE)[-1]
@@ -42,14 +60,19 @@ df.train2 <- df.train2[,-1]
 df.test2 <- df.test2[,-1]
 #df.train2[1:6,1:9]
 ```
-## Step 2: Implement Algorithm
-### Model-Based Algorithm (Cluster Models)
-#### Stage  
+
+### Step 2: Implement Algorithm  {#Step2}  
+#### Model-Based Algorithm (Cluster Models) {.tabset}  
+This section demonstrates how the cluster model have been implemented to the Data Set 2 (Each Movie). For details about this algorithm, pleae refer to [Notes on Cluster Model][3] put together by Chengliang, Tang.   
+
+##### Stage  
 ```{r}
+# Set up controls
 run.CM.cv <- FALSE
 run.CM.pars <- FALSE
 run.CM.est <- FALSE
 
+# Source functions built
 source("../lib/ClusterModel.R")
 ### cluster.cv -- Perfom K-Fold Cross-Validation
 ### cluster.em -- Learn Parameters Using EM Algorithm
@@ -57,10 +80,12 @@ source("../lib/ClusterModel.R")
 ### cluster.pi -- Compute Responsibilities  
 ```
 
-#### Choose C by 5-Fold Cross-Validation  
+##### Choose C by 5-Fold Cross-Validation  
 ```{r}
+# A set of C values to be tested  
 CM.C.list <- c(seq(3,13, by=2))
 
+# Run 5-fold cross-validation
 if(run.CM.cv){
   CM.error.validation <- cluster.cv(df.train2, CM.C.list)
   save(CM.error.validation, file = paste0("../output/CM.error.validation.RData"))
@@ -68,6 +93,7 @@ if(run.CM.cv){
   load("../output/CM.error.validation.RData")
 }
 
+# Visualize results
 #library("Hmisc")
 CM.error.cv <- colMeans(CM.error.validation)
 CM.error.cv.sd <- apply(CM.error.validation, 2, sd)/sqrt(nrow(CM.error.validation))
@@ -93,8 +119,9 @@ CM.C.best <- CM.C.list[(CM.error.cv>CM.error.cv.lbound)
                        & (CM.error.cv<CM.error.cv.ubound)][1]
 print(paste0("The best number of classes is ", CM.C.best, "."))  
 ```
-#### Learn Parameters with the C Chosen 
+##### Learn Parameters with the C Chosen 
 ```{r}
+# Learn parameters with the C chosen  
 if(run.CM.pars){
   CM.pars <- cluster.em(df.train2, CM.C.best, 0.05)
   save(CM.pars, file = paste0("../output/CM.pars.RData"))
@@ -103,8 +130,9 @@ if(run.CM.pars){
 }
 ```
 
-####  Compute Score Estimation & Test Error  
+##### Compute Score Estimation & Test Error  
 ```{r}
+# Compute score estimation
 if(run.CM.est){
   CM.est <- cluster.score(df.train2, CM.pars)
   save(CM.est, file = paste0("../output/CM.est.RData"))
@@ -112,16 +140,15 @@ if(run.CM.est){
   load("../output/CM.est.RData")
 }
 
+# Compute test error
 CM.error.test <- sum(abs(CM.est-df.test2),na.rm = T)/ sum(!is.na(CM.est-df.test2))
 print(paste0("The test error of the cluster model is ", round(CM.error.test,4),"."))
 ```
 
-### Memory-Based Algorithm
-Based on user database which contains the history of users' behaviours or preferance expressed by a set of votes vi,j corresponding to the vote for user i on item j, Memory-Based Algorithm predict the votes of the active users on items new to them based on a set of weights between users calculated from the user database.
-It can deal with both implicit data(MS website), which is binary, showing that whether a user voted or not, and explicit data(Movie), showing the scores. By using default voting, we first used different methods to calculate correlations between users(pearson, spearman, pearson+variance weight, SimRank), and then defined a set of neighbors which have specific correlations with an active user by setting weight thresholds.
-For prediction part, predicted scores are assigned to the items users never voted before. For evaluation part, the implicit data used expected utility of a ranked list of items to show how users are satisfied with the recommendation and the explicit data used MAE to get the accuracy.
-During the process, besides using different methods to calculate correlation, different thresholds which showed different coverage and the way to calculate predicted scores(scaled or not) are also two variables in this algorithm.
-#### Stage
+#### Memory-Based Algorithm {.tabset}  
+Based on user database which contains the history of users' behaviours or preferance expressed by a set of votes $v_{i,j}$ corresponding to the vote for user i on item j, memory-based algorithm predicts the votes of the active users on items new to them based on a set of weights between users calculated from the user database.  The memory-based algorithm have been implemented to both the implicit data (MS website), which is binary, showing that whether a user voted or not, and the explicit data (Each Movie), showing the scores. By using default voting, we first have used different methods to calculate correlations between users (pearson, spearman, pearson+variance weight, SimRank), and then defined a set of neighbors which have specific correlations with an active user by setting weight thresholds. For prediction, the predicted scores have been assigned to the items that the users have never voted before. For evaluation, we have used expected utility of a ranked list of items to show how users are satisfied with the recommendation for the implicit data and MAE to get the accuracy for the explicit data. Besides using different methods to calculate correlation, different thresholds, which would show different coverage, and different ways of calculating predicted scores (scaled or not) have also been considered in the memory-based algorithm.   
+
+##### Stage
 ```{r}
 transfer_1 <- FALSE
 transfer_1_test <- FALSE
@@ -148,7 +175,7 @@ source("../lib/Memory-based Model.R")
 ### rank_score -- Evaluation for implicit dataset: expected utility of ranked list
 ```
 
-#### Reshape dataset
+##### Reshape Dataset
 ```{r}
 if(transfer_1 & transfer_1_test & transfer_2){
   df_train1<-transfer_1(train1)
@@ -167,7 +194,7 @@ if(transfer_1 & transfer_1_test & transfer_2){
 }
 ```
 
-#### get weight matrix and select neighbors by threshold
+##### Compute Weight Matrix and Select Neighbors by Threshold
 ```{r}
 if(simweight & var_weight & simrank & get_neighbors_index){
   weight_pearson_1<-simweight(df_train1,"pearson")
@@ -229,7 +256,7 @@ if(simweight & var_weight & simrank & get_neighbors_index){
 }
 ```
 
-#### Calculate the prediction score and evaluate the ranked list(for MS data)
+##### Calculate PredictionSscore and Evaluate Ranked List  
 ```{r}
 if(pred_1 & rank_score){
   pearson_score<-c()
@@ -290,3 +317,5 @@ if(pred_1 & rank_score){
   # pred_var_2[i]<-pred_2(df_train2,df_test2,temp3)
 #}
 ```
+
+### Step 3: Evaluation  {#Step3}  
