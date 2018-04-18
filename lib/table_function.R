@@ -1,0 +1,61 @@
+result<-function(dataname, weighted){
+  weight.thershold<-c(0,0.2,0.3,0.4,0.5)
+  if(dataname==1){
+    if(weighted== T){
+      table<-data.frame(weight.thershold=weight.thershold,pearson.var.off=c(NA,round(pearson_score[2:5],4)),
+                        spearman.var.off=c(NA,round(spearman_score[2:5],4)),pearson.var.on=c(NA,round(var_pear_score[2:5],4)),
+                        simrank=c(round(simrank_score,4),rep(NA,4)))
+    }else{
+      table<-data.frame(weight.thershold=weight.thershold,pearson.var.off=c(NA,round(pearson_score_noweighted[2:5],4)),
+                        spearman.var.off=c(NA,round(spearman_score_noweighted[2:5],4)),pearson.var.on=c(NA,round(var_pear_score_noweighted[2:5],4)),
+                        simrank=c(round(simrank_score_noweighted,4),rep(NA,4)))
+    }
+  }else{
+    load("../output/pred_pear_thres0.RData")
+    load("../output/pred_pear_thres0.2.RData")
+    load("../output/pred_pear_thres0.3.RData")
+    load("../output/pred_pear_thres0.4.RData")
+    load("../output/pred_pear_thres0.5.RData")
+    load("../output/prednowei_pear_thres0.RData")
+    load("../output/prednowei_pear_thres0.2.RData")
+    load("../output/prednowei_pear_thres0.3.RData")
+    load("../output/prednowei_pear_thres0.4.RData")
+    load("../output/prednowei_pear_thres0.5.RData")
+    load("../output/pred_pear_var_thres0.RData")
+    load("../output/pred_pear_var_thres0.2.RData")
+    load("../output/pred_pear_var_thres0.3.RData")
+    load("../output/pred_pear_var_thres0.4.RData")
+    load("../output/pred_pear_var_thres0.5.RData")
+    load("../output/pred_spear_thres0.RData")
+    load("../output/pred_spear_thres0.2.RData")
+    load("../output/pred_spear_thres0.3.RData")
+    load("../output/pred_spear_thres0.4.RData")
+    load("../output/pred_spear_thres0.5.RData")
+    load("../output/prednowei_pear_var_thres0.RData")
+    load("../output/prednowei_pear_var_thres0.2.RData")
+    load("../output/prednowei_pear_var_thres0.3.RData")
+    load("../output/prednowei_pear_var_thres0.4.RData")
+    load("../output/prednowei_pear_var_thres0.5.RData")
+    load("../output/prednowei_spear_thres0.RData")
+    load("../output/prednowei_spear_thres0.2.RData")
+    load("../output/prednowei_spear_thres0.3.RData")
+    load("../output/prednowei_spear_thres0.4.RData")
+    load("../output/prednowei_spear_thres0.5.RData")
+    pred_pear<-c(pred_pear_thres0,pred_pear_thres0.2,pred_pear_thres0.3,pred_pear_thres0.4,pred_pear_thres0.5)
+    prednowei_pear<-c(prednowei_pear_thres0,prednowei_pear_thres0.2,prednowei_pear_thres0.3,prednowei_pear_thres0.4,prednowei_pear_thres0.5)
+    pred_pear_var<-c(pred_pear_var_thres0,pred_pear_var_thres0.2,pred_pear_var_thres0.3,pred_pear_var_thres0.4,pred_pear_var_thres0.5)
+    pred_spear<-c(pred_spear_thres0,pred_spear_thres0.2,pred_spear_thres0.3,pred_spear_thres0.4,pred_spear_thres0.5)
+    prednowei_pear_var<-c(prednowei_pear_var_thres0,prednowei_pear_var_thres0.2,prednowei_pear_var_thres0.3,prednowei_pear_var_thres0.4,prednowei_pear_var_thres0.5)
+    prednowei_spear<-c(prednowei_spear_thres0,prednowei_spear_thres0.2,prednowei_spear_thres0.3,prednowei_spear_thres0.4,prednowei_spear_thres0.5)
+    if(weighted== T){
+      table<-data.frame(weight.thershold=weight.thershold,pearson.var.off=round(pred_pear,4),
+                        spearman.var.off=round(pred_spear,4),pearson.var.on=round(pred_pear_var,4))
+                    
+      
+    }else{
+      table<-data.frame(weight.thershold=weight.thershold,pearson.var.off=round(prednowei_pear,4),
+                        spearman.var.off=round(prednowei_spear,4),pearson.var.on=round(prednowei_pear_var,4))
+    }
+}
+  return(table)
+}

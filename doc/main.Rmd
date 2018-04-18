@@ -176,14 +176,14 @@ Based on user database which contains the history of users' behaviours or prefer
 
 ##### Stage
 ```{r}
-simweight <- FALSE
-rmna <-FALSE
-var_weight <- FALSE
-simrank <- FALSE
-pred_1 <- FALSE
-pred_2 <- FALSE
-rank_score <-FALSE
-
+run.simweight <- FALSE
+run.rmna <-FALSE
+run.var_weight <- FALSE
+run.simrank <- FALSE
+run.pred_1 <- FALSE
+run.pred_2 <- FALSE
+run.rank_score <-FALSE
+run.get_neighbors_index<- FALSE
 source("../lib/Memory-based Model.R")
 ### transfer_1 -- transfer MS training data
 ### transfer_1_test -- transfer MS testing data to dataframe with columns of all websites
@@ -201,7 +201,7 @@ source("../lib/Memory-based Model.R")
 
 ##### Compute Weight Matrix and Select Neighbors by Threshold
 ```{r}
-if(simweight & var_weight & simrank & get_neighbors_index){
+if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
   weight_pearson_1<-simweight(df_train1,"pearson")
   weight_spearman_1<-simweight(df_train1,"spearman")
   weight_pearson_2_temp<-simweight(df_train2,"pearson")
@@ -263,7 +263,7 @@ if(simweight & var_weight & simrank & get_neighbors_index){
 
 ##### Calculate PredictionSscore and Evaluate Ranked List  
 ```{r}
-if(pred_1 & rank_score){
+if(run.pred_1 & run.rank_score){
   pearson_score<-c()
   spearman_score<-c()
   var_pear_score<-c()
@@ -323,4 +323,26 @@ if(pred_1 & rank_score){
 #}
 ```
 
-### Step 3: Evaluation  {#Step3}  
+### Step 3: Evaluation  {#Step3} 
+```{r}
+source("../lib/table_function.R")
+#Dataset1
+result(dataname=1,weighted=T)
+result(dataname=1,weighted=F)
+```
+
+For data1, Simrank correlation is better than other correlation.
+
+```{r}
+#Dataset2
+##Memory-based Model
+result(dataname=2,weighted=T)
+result(dataname=2,weighted=F)
+##Compare with Cluster Model
+load("../output/prednowei_pear_thres0.2.RData")
+data.frame(Method=c("Cluster Model","Memory-Based Model ( Corrleation = Pearson Variance = No Threshold =0.2)"),MAE=c(CM.error.test,prednowei_pear_thres0.2))
+
+```
+
+For data2, Memory-Based Model (pearson, threshold=0.2) is better than Cluster Model.
+Variance Weighting improve the performance for data1, while lower the performance for data2.The best threshold is 0.2 for both data sets.
