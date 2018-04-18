@@ -38,12 +38,12 @@ library("Hmisc")
 #setwd("~/GitHub/Spring2018-Project4-group-10/doc")
 ```
 
-### Step 1: Load and Process Data {#Step1}   
+### Step 1: Load and Process Data {#Step1}  
+#### Load Data  
 This project is based on the following two datasets.  
 
 * Data Set 1: [Microsoft Web Data][1]  
 * Data Set 2: [EachMovie][2]   
-
 
 To alleviate computation burden, 5,000 sampled users from the full data above have been used in this notebook.  
 ```{r}
@@ -51,7 +51,11 @@ train1 <- read.csv("../data/MS_sample/data_train.csv", header=TRUE)[-1]
 test1 <- read.csv("../data/MS_sample/data_test.csv", header=TRUE)[-1]
 train2 <- read.csv("../data/eachmovie_sample/data_train.csv", header=TRUE)
 test2 <- read.csv("../data/eachmovie_sample/data_test.csv", header=TRUE)
+```
 
+#### Process Data  {.tabset}  
+##### For Model-Based Algorithm (Cluster Models) 
+```{r}
 #library("reshape2")
 df.train2 <- dcast(train2, User~Movie, value.var = "Score", fill = NA)
 df.test2 <- dcast(test2, User~Movie, value.var = "Score", fill = NA)
@@ -61,10 +65,11 @@ df.train2 <- df.train2[,-1]
 df.test2 <- df.test2[,-1]
 #df.train2[1:6,1:9]
 ```
-
-
-##### Reshape Dataset
+##### For Memory-Based Algorithm
 ```{r}
+transfer_1 <- FALSE
+transfer_1_test <- FALSE
+transfer_2 <- FALSE
 if(transfer_1 & transfer_1_test & transfer_2){
   df_train1<-transfer_1(train1)
   df_test1<-transfer_1_test(test1,df_train1)
@@ -171,9 +176,6 @@ Based on user database which contains the history of users' behaviours or prefer
 
 ##### Stage
 ```{r}
-transfer_1 <- FALSE
-transfer_1_test <- FALSE
-transfer_2 <- FALSE
 simweight <- FALSE
 rmna <-FALSE
 var_weight <- FALSE
