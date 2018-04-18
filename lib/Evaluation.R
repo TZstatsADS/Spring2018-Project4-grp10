@@ -15,13 +15,7 @@ rank_score <- function(predicted_test,true_test){
   return(R)
 }
 
-## ROC
-evaluation.roc <- function(roc_value, mat, mat.true){
-  mat.criterion <- matrix(roc_value, nrow = nrow(mat), ncol = ncol(mat))
-  same_num <- sum((mat >= mat.criterion) == (mat.true >= mat.criterion), na.rm=TRUE)
-  n <- sum(!is.na(mat))
-  return(same_num/n)
-}
+
 
 ## MAE
 evaluation.mae <- function(pred.val, true.val){

@@ -333,6 +333,43 @@ if(run.pred_1 & run.rank_score){
 ```
 
 ### Step 3: Evaluation  {#Step3} 
+
+There are two evaluation methods we used. We used Ranked Scoring for evaluate dataset1, and MAE for evaluate dataset2. Here are the algorithm functions for these two evaluation methods. 
+
+#### Rank Scoring function for datset1
+```{r}
+rank_score <- function(predict,test){
+  ## function to calculate rank score of predicted value
+  ## input: predict - predicted value matrix of test data
+  ##        test - test data matrix
+  ## output: rank score
+  d <- 0
+  alpha<-10
+  #predict<-predict[rownames(predict)%in%rownames(test),]#colnames(predict)%in%colnames(test)
+  rank_mat_pred <- ncol(predict)+1-t(apply(predict,1,function(x){return(rank(x,ties.method = 'first'))}))
+  rank_mat_test <- ncol(test)+1-t(apply(test,1,function(x){return(rank(x,ties.method = 'first'))}))
+  #vec_pred <- ifelse(predict - d > 0, predict - d, 0)
+  vec_test <- ifelse(test - d > 0, test - d, 0)
+  R_a <- apply(1/(2^((rank_mat_pred-1)/(alpha-1))) * vec_test,1,sum)
+  R_a_max <- apply(1/(2^((rank_mat_test-1)/(alpha-1))) * vec_test,1,sum)
+  R <- 100*sum(R_a)/sum(R_a_max)
+  return(R)
+}
+```
+
+#### MAE function for dataset2
+```{r}
+MAE <- function(predict,test){
+  ## function to calculate mean absolute error of predicted value
+  ## Input: predict - predicted value
+  ##        test - test data matrix
+  ## Output: MAE
+  mae <- mean(abs(predict-test),na.rm=T)
+  return(mae)
+}
+```
+ 
+#### Results and conclusion for dataset1
 ```{r}
 source("../lib/table_function.R")
 #Dataset1
@@ -342,6 +379,7 @@ result(dataname=1,weighted=F)
 
 For data1, the Simrank correlation is better than other correlation.
 
+#### Results and conclusion for dataset2
 ```{r}
 #Dataset2
 ##Memory-based Model
