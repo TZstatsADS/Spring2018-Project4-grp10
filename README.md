@@ -1,4 +1,3 @@
-
 # Project 4: Collaborative Filtering
 
 ### [Project Description](doc/project4_desc.md)
@@ -16,7 +15,7 @@ Term: Spring 2018
 In this project, We have examined two classes of collaborative filtering algorithms, i.e., the model-based algorithm (cluster model) and the memory-based algorithms. The algorithms have been evaluated for both the implicity and the explicity voting databases as follows:
 
 	+ Data Set 1 Microsoft Web Data: an implicity dataset with 4,151 users and 269 websites that captures individual visits to various areas in the Microsoft corporate website, recording whether a user visited a website or not by binary 0-1. 
-	+ Data Set 2 EachMovie, an explicity dataset with 5,055 users and 1,619 movies that captures individual ratings ranged in value from 1 to 6 on various movies.  
+	+ Data Set 2 EachMovie: an explicity dataset with 5,055 users and 1,619 movies that captures individual ratings ranged in value from 1 to 6 on various movies.  
 
 In addition to implementing the memory-based algorithm (with Pearson or Spearman correlation, with and without variance weighting, and selecting neighbours) to both datasets, we have implemented SimRank to Data Set 1 and the model-based algorithm (cluster model) to Data Set 2. To compare the predictive accuracy of the various methods, we have applied ranked scoring and mean absolute error (MAE) to Data Set 1 and Data Set 2 respectively. As results shown, the SimRank correlation has outperformed other correlation for Data Set 1 and the Memory-Based Model (with pearson correlation, threshold=0.2) has outperformed the Cluster Model. The Variance Weighting has improved the performance for Data Set 1, while has lowered the performance for Data Set 2. The best threshold is 0.2 for both datasets.
 
