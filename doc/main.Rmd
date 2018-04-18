@@ -3,6 +3,7 @@ title: "Project 4 - Collaborative Filtering"
 author: "Group 10"
 date: "4/18/2018"
 output:
+  html_document: default
   html_notebook: default
   pdf_document: default
 ---
@@ -212,10 +213,12 @@ run.get_neighbors_index<- FALSE
 
 
 ##### Compute Weight Matrix and Select Neighbors by Threshold
+Matrix and Select Neighbors by Threshold
+Here, we use pearson correlation, spearman correlation, simrank weighting to calculate similarity weighting. Then we also add variance weighting into pearson correlation. We also conduct weight threshold to select neighbours to improve accuracy and efficiency of our model.
 ```{r}
 if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
   # calculate similarity weight by different methods
-  weight_pearson_1<-simweight(df_train1,"pearson")
+  weight_pearson_1<-simweight(df_train1,"pearson")
   weight_spearman_1<-simweight(df_train1,"spearman")
   weight_pearson_2_temp<-simweight(df_train2,"pearson")
   weight_pearson_2<-rmna(weight_pearson_2_temp,df_train2)
@@ -259,7 +262,7 @@ if(run.simweight & run.var_weight & run.simrank & run.get_neighbors_index){
   save(neighbors_pearson_2, file = paste0("../output/neighbors_pearson_2.RData"))
   save(neighbors_spearman_2, file = paste0("../output/neighbors_spearman_2.RData"))
   save(neighbors_simrank_1, file = paste0("../output/neighbors_simrank_1.RData"))
-  }else{
+  
   load("../output/weight_pearson_1.RData")
   load("../output/weight_spearman_1.RData")
   load("../output/weight_pearson_2.RData")
@@ -315,7 +318,7 @@ if(run.pred_1 & run.rank_score){
   save(spearman_score_noweighted, file = paste0("../output/spearman_score_noweighted.RData"))
   save(var_pear_score_noweighted, file = paste0("../output/var_pear_score_noweighted.RData"))
   save(simrank_score_noweighted, file = paste0("../output/simrank_score_noweighted.RData"))
-}else{
+}
   load("../output/pearson_score.RData")
   load("../output/spearman_score.RData")
   load("../output/var_pear_score.RData")
@@ -324,7 +327,7 @@ if(run.pred_1 & run.rank_score){
   load("../output/spearman_score_noweighted.RData")
   load("../output/var_pear_score_noweighted.RData")
   load("../output/simrank_score_noweighted.RData")
-  }
+  
 ```
 
 ```{r}
@@ -343,7 +346,7 @@ if(run.pred_1 & run.rank_score){
 
 ### Step 3: Evaluation  {#Step3} 
 
-There are two evaluation methods we used. We used Ranked Scoring for evaluate dataset1, and MAE for evaluate dataset2. Here are the algorithm functions for these two evaluation methods. 
+There are two evaluation methods we used. We used Ranked Scoring to evaluate dataset1, which is implicit data. The higher the Ranked Scoring, the better the result. And we use MAE to evaluate dataset2, which is explicit data. The lower the mae, the better the result. Here are the algorithm functions for these two evaluation methods. 
 
 #### Rank Scoring function for datset1
 ```{r}
@@ -386,7 +389,7 @@ result(dataname=1,weighted=T)
 result(dataname=1,weighted=F)
 ```
 
-For data1, the Simrank correlation is better than other correlation.
+From the form, the simrank's ranked score is higher which means the Simrank correlation is better than other correlation.As we can see from our result, when the coverage of neigbours is lower than 20%, the prediction will become worse.
 
 #### Results and conclusion for dataset2
 ```{r}
@@ -400,5 +403,6 @@ data.frame(Method=c("Cluster Model","Memory-Based Model ( Corrleation = Pearson 
 
 ```
 
-For data2, the Memory-Based Model (pearson, threshold=0.2) is better than the Cluster Model.
-The Variance Weighting improve the performance for data1, while lower the performance for data2. The best threshold is 0.2 for both data sets.
+For data2, the Memory-Based Model (pearson correlation, threshold=0.2) is better than the Cluster Model.
+
+Variance Weighting improves the performance for data1, while lowers the performance for data2. The best threshold is 0.2 for both data sets.
