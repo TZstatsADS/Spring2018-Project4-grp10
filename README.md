@@ -5,7 +5,7 @@
 Term: Spring 2018
 + Projec Title: Collaborative Filtering  
 	Project Report：[**`main.Rmd`**](doc/main.Rmd)/[**`main.nb.html`**](doc/main.nb.html)  
-	Presentation Slides：[**`ads_project4_group10.pptx`**](doc/ads_project4_group10.pptx)   
+	Presentation Slides：[**`ads_project4_group10.pptx`**](doc/ads_project4_group10.pdf)   
 + Team #10 Members:  
 	+ Dong, Jiaqi
 	+ Ji, Hanying
