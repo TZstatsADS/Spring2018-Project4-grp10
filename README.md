@@ -31,7 +31,9 @@ Goal: Evaulating the result of recommendation by [1]Model-Based Algorithm (Clust
 
 + Yiyi, Zhang: Built and implemented the Cluster Model to Data Set 2. Constructed the notebook structure and wrote ToC, Step 0-1, and the cluster model part in the main.Rmd file. Downloaded the datasets and reference papers, and organized the repository including the READMEs. 
 
-Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
++ Jiaqi, Dong: [1]Write up the Evaluation functions. [2]Constructed Step3 of the notebook , [3]Write up the evaluation part in the main.Rmd file. [4]Do the prediction and evaluate the MAE score of spearman method.
+
+ Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
 proj/
