@@ -67,10 +67,15 @@ df.test2 <- df.test2[,-1]
 ```
 ##### For Memory-Based Algorithm
 ```{r}
-transfer_1 <- FALSE
-transfer_1_test <- FALSE
-transfer_2 <- FALSE
-if(transfer_1 & transfer_1_test & transfer_2){
+source("../lib/Memory-based Model.R")
+### transfer_1 -- transfer MS training data
+### transfer_1_test -- transfer MS testing data to dataframe with columns of all websites
+### transfer_2 -- transfer Movie data
+
+run.transfer_1 <- FALSE
+run.transfer_1_test <- FALSE
+run.transfer_2 <- FALSE
+if(run.transfer_1 & run.transfer_1_test & run.transfer_2){
   df_train1<-transfer_1(train1)
   df_test1<-transfer_1_test(test1,df_train1)
   df_train2<-transfer_2(train2)
@@ -184,10 +189,8 @@ run.pred_1 <- FALSE
 run.pred_2 <- FALSE
 run.rank_score <-FALSE
 run.get_neighbors_index<- FALSE
-source("../lib/Memory-based Model.R")
-### transfer_1 -- transfer MS training data
-### transfer_1_test -- transfer MS testing data to dataframe with columns of all websites
-### transfer_2 -- transfer Movie data
+
+
 ### simweight --  similarity weight
 ### rmna -- 
 ### var_weight -- variance weight
