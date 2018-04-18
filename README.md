@@ -25,6 +25,8 @@ In addition to implementing the memory-based algorithm (with Pearson or Spearman
 
 ![image](figs/1.png)
 
+Note: As some similiarity weighting matrix is too large to be uploaded to github, they have been uploaded to google drive and the link is as follows, https://drive.google.com/drive/folders/1iWA7Y9CbPxi3Ryml_B-eXpTQsQ7G1RYx?usp=sharing
+ 
 **Contribution Statement**:  
 + Jiaqi, Dong: [1] Write up the Evaluation functions. [2] Write up the table_function. [3] Construct the evaluation part in the main.Rmd file. [4] Do the prediction and evaluate the MAE score of spearman method.  
 
@@ -33,9 +35,6 @@ In addition to implementing the memory-based algorithm (with Pearson or Spearman
 + Liu, Mingming: Presenter in this project. Mainly responsible for Memory-Based Algorithm with Ji, Hanying. Foucused on explicit Movie dataset and wrote functions for \n[1] reshaping data2; [2] calculating pearson correlation, spearman correlation, simrank and vaiance weighting correlation; [3] replacing NA with numbers in each correlation; [4] writing prediction function for dataset2 by scaling/ no scaling; [5] evaluating different combinations of methods by MAE score; [6] designing ppt.  
 
 + Yiyi, Zhang: Built and implemented the Cluster Model to Data Set 2. Constructed the notebook structure and wrote ToC, Introduction, Step 1&2, and the cluster model part of Step 3 in the main.Rmd file. Downloaded the datasets and reference papers, and organized the repository including the READMEs. 
-
- PS: Some similiarity weighting matrix is too large and can't be upload to github so we upload it to google drive. The link is:
- https://drive.google.com/drive/folders/1iWA7Y9CbPxi3Ryml_B-eXpTQsQ7G1RYx?usp=sharing
  
  Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
