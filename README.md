@@ -20,7 +20,9 @@ In this project, we implemented several collaborative filtering algorithm based 
 [2]Each Movie(explicit): user database with 5055 users and 1619 movies, recording uses's votes if exist, which range from 1 to 5.
 Goal: Evaulating the result of recommendation by [1]Model-Based Algorithm (Cluster Model) and [2]Memory-Based Algorithm, combined with several methods in calculating similarity weights, selecting neighbors by setting threshold, rating normalization to get the expected utility of the ranked list for implicit and MAE for explicit data.
 
-main.pdf:(doc/main.Rmd)
+[**`main.Rmd`**](doc/main.Rmd)/[**`main.nb.html`**](doc/main.nb.html): project report 
+[**`ads_project4_group10.pptx`**](doc/ads_project4_group10.pptx): presentation slides   
+
 
 ![image](figs/3.png)
 
