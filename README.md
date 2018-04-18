@@ -12,16 +12,15 @@ Term: Spring 2018
 	+ Ji, Hanying
 	+ Liu, Mingming
 	+ Zhang, Yiyi
-
-![image](figs/2.png)
-
-![image](figs/1.png)
-
 + Project summary: 
 In this project, we implemented several collaborative filtering algorithm based on two datasets:
 [1]Microsoft Website(implicit): user database with 4151 users and 269 websites, recording whether a user visited a website or not by binary 0-1;
 [2]Each Movie(explicit): user database with 5055 users and 1619 movies, recording uses's votes if exist, which range from 1 to 5.
 Goal: Evaulating the result of recommendation by [1]Memory-Based Algorithm, combined with several methods in calculating similarity weights, selecting neighbors by setting threshold, rating normalization to get the expected utility of the ranked list for implicit and MAE for explicit data and [2]Model-Based Algorithm, xxxxxxx.
+
+![image](figs/2.png)
+
+![image](figs/1.png)
 
 ![image](figs/3.png)
 
