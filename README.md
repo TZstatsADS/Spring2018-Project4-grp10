@@ -38,7 +38,7 @@ Conclusion: For data1, the Simrank correlation is better than other correlation.
 
 + Liu, Mingming: Presenter in this project. Mainly responsible for Memory-Based Algorithm with Ji, Hanying. Foucused on explicit Movie dataset and wrote functions for \n[1] reshaping data2; [2] calculating pearson correlation, spearman correlation, simrank and vaiance weighting correlation; [3] replacing NA with numbers in each correlation; [4] writing prediction function for dataset2 by scaling/ no scaling; [5] evaluating different combinations of methods by MAE score; [6] designing ppt. 
 
-+ Yiyi, Zhang: Built and implemented the Cluster Model to Data Set 2. Constructed the notebook structure and wrote ToC, Step 0-1, and the cluster model part in the main.Rmd file. Downloaded the datasets and reference papers, and organized the repository including the READMEs. 
++ Yiyi, Zhang: Built and implemented the Cluster Model to Data Set 2. Constructed the notebook structure and wrote ToC, Introduction, Step 1&2, and the cluster model part of Step 3 in the main.Rmd file. Downloaded the datasets and reference papers, and organized the repository including the READMEs. 
 
 + Jiaqi, Dong: [1] Write up the Evaluation functions. [2] Write up the table_function. [3] Construct the evaluation part in the main.Rmd file. [4] Do the prediction and evaluate the MAE score of spearman method.
 
