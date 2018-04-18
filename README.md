@@ -4,7 +4,7 @@
 
 Term: Spring 2018
 + Projec Title: Collaborative Filtering  
-	[Project Report]：[RNotebook](https://cdn.rawgit.com/TZstatsADS/Spring2018-Project4-grp10/597b3f97/doc/main.html)
+	[Project Report]：[RNotebook](https://cdn.rawgit.com/TZstatsADS/Spring2018-Project4-grp10/597b3f97/doc/main.html)  
 	Presentation Slides：[**`ads_project4_group10.pptx`**](doc/ads_project4_group10.pdf)   
 + Team #10 Members:  
 	+ Dong, Jiaqi
